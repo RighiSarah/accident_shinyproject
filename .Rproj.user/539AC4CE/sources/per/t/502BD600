@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1541861632949.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "2439585947",
+    "id" : "502BD600",
+    "lastKnownWriteTime" : 1541871685,
+    "last_content_update" : 1541871685720,
+    "path" : "E:/M2/programmation avancée/accident_shinyproject/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+        "cursorPosition" : "38,23",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

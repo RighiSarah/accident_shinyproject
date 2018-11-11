@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1541861705337.000,
+    "dirty" : false,
+    "encoding" : "WINDOWS-1252",
+    "folds" : "",
+    "hash" : "15818687",
+    "id" : "E54C91A7",
+    "lastKnownWriteTime" : 1541881045,
+    "last_content_update" : 1541881045209,
+    "path" : "E:/M2/programmation avancée/accident_shinyproject/server.R",
+    "project_path" : "server.R",
+    "properties" : {
+        "cursorPosition" : "20,39",
+        "docOutlineVisible" : "0",
+        "scrollLine" : "5",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

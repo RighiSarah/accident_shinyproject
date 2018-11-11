@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:TalendMetadata="http://www.talend.org/metadata/connection/2010" xmlns:orgomg.cwm.resource.record="http:///orgomg/cwm/resource/record.ecore">
+  <TalendMetadata:DelimitedFileConnection xmi:id="_S_m6YOBrEeidII79jIz7gw" name="dim_cara" dataPackage="_S_m6YeBrEeidII79jIz7gw" Server="Localhost 127.0.0.1" FilePath="E:/M2/programmation avancée/projet/entrepot/dim_caracteristiques.csv" Format="WINDOWS" Encoding="windows-1252" FieldSeparatorValue="&quot;;&quot;" RowSeparatorValue="&quot;\n&quot;" UseHeader="true" HeaderValue="1" FirstLineCaption="true"/>
+  <orgomg.cwm.resource.record:RecordFile xmi:id="_S_m6YeBrEeidII79jIz7gw" name="default" dataManager="_S_m6YOBrEeidII79jIz7gw">
+    <ownedElement xsi:type="TalendMetadata:MetadataTable" xmi:id="_S_m6YuBrEeidII79jIz7gw" id="_MXq9EOBrEeidII79jIz7gw" label="metadata">
+      <feature xsi:type="TalendMetadata:MetadataColumn" xmi:id="_S_m6Y-BrEeidII79jIz7gw" label="caracteristiques_id" length="2" talendType="id_Integer" pattern="&quot;dd-MM-yyyy&quot;"/>
+      <feature xsi:type="TalendMetadata:MetadataColumn" xmi:id="_S_m6ZOBrEeidII79jIz7gw" label="num_accident" length="-1" talendType="id_String" pattern="&quot;dd-MM-yyyy&quot;"/>
+      <feature xsi:type="TalendMetadata:MetadataColumn" xmi:id="_S_m6ZeBrEeidII79jIz7gw" label="lumiere" length="26" talendType="id_String" pattern="&quot;dd-MM-yyyy&quot;"/>
+      <feature xsi:type="TalendMetadata:MetadataColumn" xmi:id="_S_m6ZuBrEeidII79jIz7gw" label="atmosphere" length="19" talendType="id_String" pattern="&quot;dd-MM-yyyy&quot;"/>
+    </ownedElement>
+  </orgomg.cwm.resource.record:RecordFile>
+</xmi:XMI>
