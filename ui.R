@@ -14,10 +14,11 @@ header <- dashboardHeader(title = "Accidents dashboard")
 sidebar <- dashboardSidebar(
   
   sidebarMenu(
+    menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("maps", icon = icon("globe"), tabName = "maps"),
-    menuItem("others", icon = icon("th"), tabName = "others"),
-    menuItem("others1", icon = icon("th"), tabName = "others1")
+    menuItem("others", icon = icon("th"), tabName = "others")
+
     
     )
 )
@@ -52,7 +53,21 @@ body <- dashboardBody(
   
   #first tab
   tabItems(
-
+    
+    tabItem(tabName = "dashboard",
+            
+            column(3,
+                   box(flexdashboard::gaugeOutput("plt1"),
+                       width=20,title="Accident selon la lumiere",background ="green")),
+            column(3,
+                   box(flexdashboard::gaugeOutput("plt2"),
+                       width=20,title="Accident selon la meteo",background ="blue")),
+            column(3,
+                   box(flexdashboard::gaugeOutput("plt3"),
+                       width=20,title="Accident selon les vehicules",background ="yellow"))
+    
+            ),
+    
    tabItem (tabName = "chartbar",
      titlePanel("Create your barchart"),
   
@@ -102,15 +117,8 @@ body <- dashboardBody(
               
             )
 
-    ),
-tabItem(tabName = "others1",
-        
-        column(3,
-               box(flexdashboard::gaugeOutput("plt1"),
-                   width=20,title="Accident selon la lumiere",background ="green"))
-        
-        
-        )
+    )
+
     
   )
 ) 

@@ -165,5 +165,38 @@ server<-function(input, output,session) {
       success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
     ))
     
-  })
+     })
+   
+   atmosphere <- ("select atmosphere , count(distinct num_accident) as nombre FROM
+                  caracteristiques x
+                  join accident a on a.caracteristiques_id = x.caracteristiques_id
+                  group by 1 order by nombre desc ")
+   
+   atmosphere_result <- dbGetQuery(db, atmosphere)
+   atmosphere_result_pourecent <- ceiling(atmosphere_result$nombre[1] * 100 / sum(atmosphere_result$nombre))
+   
+   
+   output$plt2 <- flexdashboard::renderGauge({
+     gauge(atmosphere_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(atmosphere_result$atmosphere[1]),gaugeSectors(
+       success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
+     ))
+     
+   })
+   
+   vehicule <- ("select categorie_vehicule as categorie , count(distinct num_accident) as nombre FROM
+                  vehicule x
+                  join accident a on a.vehicule_id = x.vehicule_id
+                  group by 1 order by nombre desc ")
+   
+   vehicule_result <- dbGetQuery(db, vehicule)
+   vehicule_result_pourecent <- ceiling(vehicule_result$nombre[1] * 100 / sum(vehicule_result$nombre))
+   
+   
+   output$plt3 <- flexdashboard::renderGauge({
+     gauge(vehicule_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(vehicule_result$categorie[1]),gaugeSectors(
+       success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
+     ))
+     
+   })
+   
 }

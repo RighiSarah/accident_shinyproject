@@ -45,3 +45,18 @@ lumiere <- sprintf("select lumiere , count(distinct num_accident) as nombre FROM
 
 lumiere_result <- dbGetQuery(db, lumiere)
 lumiere_result_pourecent <- ceiling(lumiere_result$nombre[1] * 100 / sum(lumiere_result$nombre))
+
+
+
+atmosphere <- ("select atmosphere , count(distinct num_accident) as nombre FROM
+               caracteristiques x
+               join accident a on a.caracteristiques_id = x.caracteristiques_id
+               group by 1 order by nombre desc ")
+
+atmosphere_result <- dbGetQuery(db, atmosphere)
+atmosphere_result_pourecent <- ceiling(atmosphere_result$nombre[1] * 100 / sum(atmosphere_result$nombre))
+
+
+
+
+
