@@ -26,4 +26,27 @@ query1 <- sprintf ("select %s as attribut, count(distinct num_accident) as nombr
 
 result <- dbGetQuery(db, query1)
 
-
+if (interactive()) {
+  observe  ({
+    x <- input$dimension
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    
+    col_names <- sprintf ("show columns from %s", x)
+    col_names_result <- dbGetQuery(db, col_names)
+    # Can use character(0) to remove all choices
+    if (is.null(x))
+      x <- character(0)
+    
+    
+    # Can also set the label and select items
+    updateSelectInput(session, "attribute",
+                      label = paste("Select attribute"),
+                      choices = col_names_result$Field,
+                      selected = tail(col_names_result$Field, 1)
+    )
+  })
+}

@@ -24,7 +24,7 @@ server<-function(input, output,session) {
     
   }
   killDbConnections()
-  
+  leaflet(options = leafletOptions(minZoom = 10, maxZoom = 18))
   db = dbConnect(MySQL(),
                  dbname = "accidents",
                  host = "shinyapp.mysql.database.azure.com", 
@@ -58,27 +58,30 @@ server<-function(input, output,session) {
   })
   
   if (interactive()) {
- observe  ({
-   x <- input$dimension
-   db = dbConnect(MySQL(),
-                  dbname = "accidents",
-                  host = "shinyapp.mysql.database.azure.com", 
-                  user = "myadmin@shinyapp", 
-                  password = "Shinyapp69")
-   
-   col_names <- sprintf ("show columns from %s", x)
-   col_names_result <- dbGetQuery(db, col_names)
-   # Can use character(0) to remove all choices
-  
-   
-   # Can also set the label and select items
-   updateSelectInput(session, "attribute",
-                     label = paste("Select attribute"),
-                     choices = col_names_result$Field,
-                     selected = tail(col_names_result$Field, 1)
-   )
- })
+    observe  ({
+      x <- input$dimension
+      db = dbConnect(MySQL(),
+                     dbname = "accidents",
+                     host = "shinyapp.mysql.database.azure.com", 
+                     user = "myadmin@shinyapp", 
+                     password = "Shinyapp69")
+      
+      col_names <- sprintf ("show columns from %s", x)
+      col_names_result <- dbGetQuery(db, col_names)
+      # Can use character(0) to remove all choices
+      if (is.null(x))
+        x <- character(0)
+      
+      
+      # Can also set the label and select items
+      updateSelectInput(session, "attribute",
+                        label = paste("Select attribute"),
+                        choices = col_names_result$Field,
+                        selected = tail(col_names_result$Field, 0)
+      )
+    })
   }
+  
 
   attributeInput <- reactive({
     
@@ -117,6 +120,7 @@ server<-function(input, output,session) {
                  popup = ~paste(nom_departement, ":", nombre),
                  color = ~couleurs(nombre), fillOpacity = 0.9) %>%
       addLegend(pal = couleurs, values = ~nombre, opacity = 0.9)
+      
     
     
   })

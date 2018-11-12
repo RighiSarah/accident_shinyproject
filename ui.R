@@ -16,6 +16,7 @@ sidebar <- dashboardSidebar(
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("maps", icon = icon("globe"), tabName = "maps"),
     menuItem("others", icon = icon("th"), tabName = "others")
+   
     )
 )
 
@@ -42,9 +43,9 @@ body <- dashboardBody(
             # Clicking this will increment the progress amount
             box(width = 4, actionButton("count", "Incrementer"))#increment progress
           )
-  )
+  ),
   
-)  
+  
   
   
   #first tab
@@ -58,9 +59,11 @@ body <- dashboardBody(
      # selectInput("dimension", "Choose a dimension:", 
             #      choices = c("caracteristiques", "Lieux", "Usagers", "Vehicules","Departement")),
       selectInput("dimension", "Choose a dimension",
-                         c("caracteristiques", "lieux", "usagers", "vehicules","departement")),
+                         c("caracteristiques", "lieux", "usagers", "vehicules","departement"),
+                  selected ="caracteristiques"
+                  ),
       
-      selectInput("attribute", "Choose an attribute", c()),
+      selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
       
       submitButton("Update View", icon("refresh"))
     ),
@@ -100,7 +103,7 @@ body <- dashboardBody(
     )
     
   )
-  
+) 
 
 
 ui <- dashboardPage(
