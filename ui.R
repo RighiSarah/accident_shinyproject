@@ -27,16 +27,18 @@ body <- dashboardBody(
   
   sidebarLayout(
     sidebarPanel(
-      selectInput("dimension", "Choose a dimension:", 
-                  choices = c("caracteristiques", "Lieux", "Usagers", "Vehicules","Departement")),
+     # selectInput("dimension", "Choose a dimension:", 
+            #      choices = c("caracteristiques", "Lieux", "Usagers", "Vehicules","Departement")),
+      selectInput("dimension", "Choose a dimension",
+                         c("caracteristiques", "lieux", "usagers", "vehicules","departement")),
       
-      selectInput("attribute", "Choose an attribute", c("lumiere")),
+      selectInput("attribute", "Choose an attribute", c()),
       
       submitButton("Update View", icon("refresh"))
     ),
     mainPanel(
       
-      plotOutput("view")
+      plotOutput("view", height = 600)
     )
   )
 ),

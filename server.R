@@ -3,14 +3,27 @@ library(DBI)
 library(RMySQL)
 library(shiny)
 library(shinydashboard)
-library(jsonlite)
 library(RMySQL)
 library(leaflet)
 
 
 # Define server logic required to summarize and view the 
 # selected dataset
-server<-function(input, output) {
+server<-function(input, output,session) {
+  
+  killDbConnections <- function () {
+    
+    all_cons <- dbListConnections(MySQL())
+    
+    print(all_cons)
+    
+    for(con in all_cons)
+      +  dbDisconnect(con)
+    
+    print(paste(length(all_cons), " connections killed."))
+    
+  }
+  killDbConnections()
   
   db = dbConnect(MySQL(),
                  dbname = "accidents",
@@ -43,34 +56,56 @@ server<-function(input, output) {
            
     )
   })
- attributeInput <- reactive({
+  if (interactive()) {
+ observe  ({
+   x <- input$dimension
    db = dbConnect(MySQL(),
                   dbname = "accidents",
                   host = "shinyapp.mysql.database.azure.com", 
                   user = "myadmin@shinyapp", 
                   password = "Shinyapp69")
-   query1 <- sprintf ("select %s as attribut, count(distinct num_accident) as nombre FROM
-                     %s x 
-                     join accident a on a.%s_id = x.%s_id
-                     group by 1",input$attribute, input$dimension, input$dimension, input$dimension)
-           
-   result <- dbGetQuery(db, query1)
+   
+   col_names <- sprintf ("show columns from %s", x)
+   col_names_result <- dbGetQuery(db, col_names)
+   # Can use character(0) to remove all choices
+  
+   
+   # Can also set the label and select items
+   updateSelectInput(session, "attribute",
+                     label = paste("Select attribute"),
+                     choices = col_names_result$Field,
+                     selected = tail(col_names_result$Field, 1)
+   )
+ })
+  }
 
-
+  attributeInput <- reactive({
+    
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    query1 <- sprintf ("select %s as attribut, count(distinct num_accident) as nombre FROM
+                       %s x
+                       join accident a on a.%s_id = x.%s_id
+                       group by 1",input$attribute, input$dimension, input$dimension, input$dimension)
+    
+    result <- dbGetQuery(db, query1)
+    
+    
   })
   
   # Show the first "n" observations
   output$view <- renderPlot({
-   donnee <- attributeInput()
+  donnee <- attributeInput()
 
     barplot(donnee$nombre , 
-            las=2,
-          
-      
+           las=2,
             names.arg = donnee$attribut,
             ylab="Number of accidents",
             xlab="attribut"
-    )   
+   )   
   })
   
   output$mymap <- renderLeaflet({
