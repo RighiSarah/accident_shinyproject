@@ -56,6 +56,7 @@ server<-function(input, output,session) {
            
     )
   })
+  
   if (interactive()) {
  observe  ({
    x <- input$dimension

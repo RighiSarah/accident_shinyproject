@@ -19,7 +19,7 @@ sidebar <- dashboardSidebar(
     )
 )
 
-body <- dashboardBody (
+body <- dashboardBody(
   
   tabItem(tabName = "Info boxes",
           h2("Informations KPI"),
@@ -42,17 +42,16 @@ body <- dashboardBody (
             # Clicking this will increment the progress amount
             box(width = 4, actionButton("count", "Incrementer"))#increment progress
           )
-  ),  
+  )
   
-  
+)  
   
   
   #first tab
   tabItems(
-    
-<<<<<<< HEAD
+
    tabItem (tabName = "chartbar",
-   titlePanel("Create your barchart"),
+     titlePanel("Create your barchart"),
   
   sidebarLayout(
     sidebarPanel(
@@ -68,29 +67,10 @@ body <- dashboardBody (
     mainPanel(
       
       plotOutput("view", height = 600)
-=======
-    tabItem (tabName = "chartbar",
-             titlePanel("Create your barchart"),
-             
-             sidebarLayout(
-               sidebarPanel(
-                 selectInput("dimension", "Choose a dimension:", 
-                             choices = c("caracteristiques", "Lieux", "Usagers", "Vehicules","Departement")),
-                 
-                 selectInput("attribute", "Choose an attribute", c("lumiere")),
-                 
-                 submitButton("Update View", icon("refresh"))
-               ),
-               
-               
-               mainPanel(
-                 
-                 plotOutput("view")
-               )
-               
-             )
-             
-    ),
+)
+)
+),
+   
     
     
     #Second tab
@@ -116,12 +96,12 @@ body <- dashboardBody (
               sliderInput("slider", "Slider input:", 1, 100, 50)
               
             )
->>>>>>> e9eb63df03e4b8dee7358e7f760ade1946dbbeca
+
     )
     
   )
   
-)
+
 
 ui <- dashboardPage(
   skin= "red", header, sidebar, body 
