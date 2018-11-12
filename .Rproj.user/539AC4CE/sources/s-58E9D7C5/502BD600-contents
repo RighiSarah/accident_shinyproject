@@ -5,6 +5,7 @@ library(shiny)
 library(shinydashboard)
 library(RMySQL)
 library(leaflet)
+library(flexdashboard)
 
 # Define UI for dataset viewer application
 
@@ -15,8 +16,9 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("maps", icon = icon("globe"), tabName = "maps"),
-    menuItem("others", icon = icon("th"), tabName = "others")
-   
+    menuItem("others", icon = icon("th"), tabName = "others"),
+    menuItem("others1", icon = icon("th"), tabName = "others1")
+    
     )
 )
 
@@ -59,17 +61,17 @@ body <- dashboardBody(
      # selectInput("dimension", "Choose a dimension:", 
             #      choices = c("caracteristiques", "Lieux", "Usagers", "Vehicules","Departement")),
       selectInput("dimension", "Choose a dimension",
-                         c("caracteristiques", "lieux", "usagers", "vehicules","departement"),
+                         c("caracteristiques", "lieux", "usager", "vehicule","departement"),
                   selected ="caracteristiques"
                   ),
       
-      selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
+      selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere")
       
-      submitButton("Update View", icon("refresh"))
+      
     ),
     mainPanel(
       
-      plotOutput("view", height = 600)
+      plotOutput("view", height = 400)
 )
 )
 ),
@@ -100,7 +102,15 @@ body <- dashboardBody(
               
             )
 
-    )
+    ),
+tabItem(tabName = "others1",
+        
+        column(3,
+               box(flexdashboard::gaugeOutput("plt1"),
+                   width=20,title="Accident selon la lumiere",background ="green"))
+        
+        
+        )
     
   )
 ) 

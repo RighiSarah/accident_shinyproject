@@ -77,7 +77,7 @@ server<-function(input, output,session) {
       updateSelectInput(session, "attribute",
                         label = paste("Select attribute"),
                         choices = col_names_result$Field,
-                        selected = tail(col_names_result$Field, 0)
+                        selected = tail(col_names_result$Field, 1)
       )
     })
   }
@@ -151,4 +151,19 @@ server<-function(input, output,session) {
     )
   })
   
+  lumiere <- sprintf("select lumiere , count(distinct num_accident) as nombre FROM
+                   caracteristiques x
+                   join accident a on a.caracteristiques_id = x.caracteristiques_id
+                   
+                   group by 1 order by nombre desc ")
+  
+  lumiere_result <- dbGetQuery(db, lumiere)
+  lumiere_result_pourecent <- ceiling(lumiere_result$nombre[1] * 100 / sum(lumiere_result$nombre))
+ 
+   output$plt1 <- flexdashboard::renderGauge({
+    gauge(lumiere_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(lumiere_result$lumiere[1]),gaugeSectors(
+      success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
+    ))
+    
+  })
 }
