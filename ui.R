@@ -58,7 +58,7 @@ body <- dashboardBody(
             
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       width=20,title="Accident selon la lumiere",background ="green")),
+                       height=50,width=20,title="Accident selon la lumiere",background ="green")),
             column(3,
                    box(flexdashboard::gaugeOutput("plt2"),
                        width=20,title="Accident selon la meteo",background ="blue")),

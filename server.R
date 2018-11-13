@@ -6,49 +6,57 @@ library(shinydashboard)
 library(RMySQL)
 library(leaflet)
 
+#function that kills all mysql connections
+killDbConnections <- function () {
+  all_cons <- dbListConnections(MySQL())
+  print(all_cons)
+  for(con in all_cons)
+    +  dbDisconnect(con)
+  print(paste(length(all_cons), " connections killed."))
+}
 
-# Define server logic required to summarize and view the 
-# selected dataset
+# server code to start the shiny app
 server<-function(input, output,session) {
   
-  killDbConnections <- function () {
-    
-    all_cons <- dbListConnections(MySQL())
-    
-    print(all_cons)
-    
-    for(con in all_cons)
-      +  dbDisconnect(con)
-    
-    print(paste(length(all_cons), " connections killed."))
-    
-  }
+  # Kill all mysql connections before starting
   killDbConnections()
-  leaflet(options = leafletOptions(minZoom = 10, maxZoom = 18))
+  
+  #connection to azure mysql database (cloud)
   db = dbConnect(MySQL(),
                  dbname = "accidents",
                  host = "shinyapp.mysql.database.azure.com", 
                  user = "myadmin@shinyapp", 
                  password = "Shinyapp69")
   
+  #disconnect when exiting the app
   on.exit(dbDisconnect(db), add = TRUE)
-  
-  region<- dbReadTable(conn = db,  name = 'region', value = as.data.frame(region))
-  
-  # table2<- dbReadTable(conn = conn,  name = 'dim_region', value = as.data.frame(table2))
- 
+  # query to import dataframe for the map
  query <- paste0("SELECT d.nom_departement,latitude, longitude, count(distinct num_accident) as nombre
                 FROM departement d
                   join accident a on a.departement_id = d.departement_id
                   group by d.departement_id")
+ 
   dept<- dbGetQuery(db, query)
+  
+  #we create the data frame 
   villes <- data.frame(nom = dept$nom_departement,
                        lat = as.double(dept$latitude),
                        long = as.double(dept$longitude),
                        nombre = dept$nombre)
   
   couleurs <- colorNumeric("RdYlBu", dept$nombre, n = 10)
-  # Return the requested dataset
+  # reactive function that creates the map using leaflet library
+  output$mymap <- renderLeaflet({
+    yourMap <- leaflet(dept) %>% addTiles() %>%
+      addCircles(lng = ~longitude, lat = ~latitude,
+                 weight = 1,
+                 radius = ~sqrt(nombre) * 300, 
+                 popup = ~paste(nom_departement, ":", nombre),
+                 color = ~couleurs(nombre), fillOpacity = 0.9) %>%
+      addLegend(pal = couleurs, values = ~nombre, opacity = 0.9)
+  })
+  
+
   dimensionInput <- reactive({
     switch(input$dimension,
            "region" = region
@@ -71,9 +79,7 @@ server<-function(input, output,session) {
       # Can use character(0) to remove all choices
       if (is.null(x))
         x <- character(0)
-      
-      
-      # Can also set the label and select items
+            # Can also set the label and select items
       updateSelectInput(session, "attribute",
                         label = paste("Select attribute"),
                         choices = col_names_result$Field,
@@ -84,7 +90,6 @@ server<-function(input, output,session) {
   
 
   attributeInput <- reactive({
-    
     db = dbConnect(MySQL(),
                    dbname = "accidents",
                    host = "shinyapp.mysql.database.azure.com", 
@@ -96,8 +101,6 @@ server<-function(input, output,session) {
                        group by 1",input$attribute, input$dimension, input$dimension, input$dimension)
     
     result <- dbGetQuery(db, query1)
-    
-    
   })
   
   # Show the first "n" observations
@@ -112,19 +115,7 @@ server<-function(input, output,session) {
    )   
   })
   
-  output$mymap <- renderLeaflet({
-    yourMap <- leaflet(dept) %>% addTiles() %>%
-      addCircles(lng = ~longitude, lat = ~latitude,
-                 weight = 1,
-                 radius = ~sqrt(nombre) * 300, 
-                 popup = ~paste(nom_departement, ":", nombre),
-                 color = ~couleurs(nombre), fillOpacity = 0.9) %>%
-      addLegend(pal = couleurs, values = ~nombre, opacity = 0.9)
-      
-    
-    
-  })
-  
+ 
   output$progressBox <- renderInfoBox({
     infoBox(
       "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
