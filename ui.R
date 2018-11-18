@@ -18,8 +18,6 @@ sidebar <- dashboardSidebar(
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("maps", icon = icon("globe"), tabName = "maps"),
     menuItem("others", icon = icon("th"), tabName = "others")
-
-    
     )
 )
 
@@ -55,7 +53,6 @@ body <- dashboardBody(
   tabItems(
     
     tabItem(tabName = "dashboard",
-            
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
                        height=50,width=20,title="Accident selon la lumiere",background ="green")),
@@ -65,7 +62,6 @@ body <- dashboardBody(
             column(3,
                    box(flexdashboard::gaugeOutput("plt3"),
                        width=20,title="Accident selon les vehicules",background ="yellow"))
-    
             ),
     
    tabItem (tabName = "chartbar",
@@ -115,7 +111,12 @@ body <- dashboardBody(
               "Box content here", br(), "More box content",
               sliderInput("slider", "Slider input:", 1, 100, 50)
               
+            ),
+            mainPanel(
+              
+              plotOutput("dates", height = 400)
             )
+            
 
     )
 

@@ -57,6 +57,15 @@ atmosphere_result <- dbGetQuery(db, atmosphere)
 atmosphere_result_pourecent <- ceiling(atmosphere_result$nombre[1] * 100 / sum(atmosphere_result$nombre))
 
 
+date <- ("select d.mois, d.annee , count(distinct num_accident) as nombre FROM
+         accident x
+         join date d on x.date_id = d.date_id
+         group by 1,2 order by d.mois asc
+         ")
+date_result <- dbGetQuery(db, date)
+
+date_result$mois <- month.abb[date_result$mois]
+
 
 
 

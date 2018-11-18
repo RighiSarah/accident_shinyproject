@@ -1,10 +1,11 @@
 library(shiny)
 library(DBI)
 library(RMySQL)
-library(shiny)
 library(shinydashboard)
-library(RMySQL)
 library(leaflet)
+library(ggplot2)
+library(scales)
+library(lubridate)
 
 #function that kills all mysql connections
 killDbConnections <- function () {
@@ -103,7 +104,7 @@ server<-function(input, output,session) {
     result <- dbGetQuery(db, query1)
   })
   
-  # Show the first "n" observations
+
   output$view <- renderPlot({
   donnee <- attributeInput()
 
@@ -147,10 +148,8 @@ server<-function(input, output,session) {
                    join accident a on a.caracteristiques_id = x.caracteristiques_id
                    
                    group by 1 order by nombre desc ")
-  
   lumiere_result <- dbGetQuery(db, lumiere)
   lumiere_result_pourecent <- ceiling(lumiere_result$nombre[1] * 100 / sum(lumiere_result$nombre))
- 
    output$plt1 <- flexdashboard::renderGauge({
     gauge(lumiere_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(lumiere_result$lumiere[1]),gaugeSectors(
       success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
@@ -162,11 +161,8 @@ server<-function(input, output,session) {
                   caracteristiques x
                   join accident a on a.caracteristiques_id = x.caracteristiques_id
                   group by 1 order by nombre desc ")
-   
    atmosphere_result <- dbGetQuery(db, atmosphere)
    atmosphere_result_pourecent <- ceiling(atmosphere_result$nombre[1] * 100 / sum(atmosphere_result$nombre))
-   
-   
    output$plt2 <- flexdashboard::renderGauge({
      gauge(atmosphere_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(atmosphere_result$atmosphere[1]),gaugeSectors(
        success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
@@ -178,16 +174,30 @@ server<-function(input, output,session) {
                   vehicule x
                   join accident a on a.vehicule_id = x.vehicule_id
                   group by 1 order by nombre desc ")
-   
    vehicule_result <- dbGetQuery(db, vehicule)
    vehicule_result_pourecent <- ceiling(vehicule_result$nombre[1] * 100 / sum(vehicule_result$nombre))
-   
-   
    output$plt3 <- flexdashboard::renderGauge({
      gauge(vehicule_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(vehicule_result$categorie[1]),gaugeSectors(
        success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
      ))
-     
+   })
+   
+   date <- ("select d.mois, d.annee , count(distinct num_accident) as nombre FROM
+               accident x
+         join date d on x.date_id = d.date_id
+         group by 1,2 order by d.mois asc
+         ")
+   date_result <- dbGetQuery(db, date)
+   
+   #date_result$date <- ymd(date_result$date)
+   
+   date_result$mois <- month.abb[date_result$mois]
+   output$dates <- renderPlot({
+    
+     ggplot(date_result, aes(mois, nombre,group =1)) +geom_line() +
+      
+       labs(x = "Mois", y = "Nombre d accidents ", 
+            title = "Evolution du nombre d'accidents par mois")
    })
    
 }
