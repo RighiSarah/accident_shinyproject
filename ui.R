@@ -23,45 +23,30 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
   
-  tabItem(tabName = "Info boxes",
-          h2("Informations KPI"),
-          fluidRow(
-            # A static infoBox
-            infoBox("TEST", 10 * 2, icon = icon("credit-card")),
-            # Dynamic infoBoxes
-            infoBoxOutput("progressBox"),
-            infoBoxOutput("approvalBox")
-          ),
-          
-          # infoBoxes with fill=TRUE
-          fluidRow(
-            infoBox("Nombre d'accidents", 10 * 2, icon = icon("credit-card"), fill = TRUE),
-            infoBoxOutput("progressBox2"),
-            infoBoxOutput("approvalBox2")
-          ),
-          
-          fluidRow(
-            # Clicking this will increment the progress amount
-            box(width = 4, actionButton("count", "Incrementer"))#increment progress
-          )
-  ),
-  
-  
-  
-  
   #first tab
   tabItems(
+ 
     
     tabItem(tabName = "dashboard",
+            h2("Informations KPI"),
+            fluidRow(
+              # A static infoBox
+              #   infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
+              # Dynamic infoBoxes
+              infoBoxOutput("infobox1", width = 3),
+              infoBoxOutput("infobox2", width = 3),
+              infoBoxOutput("infobox3", width = 3),
+              infoBoxOutput("infobox4", width = 3)
+            ),
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       height=50,width=20,title="Accident selon la lumiere",background ="green")),
+                       height=50,width=20,title="Accident selon la lumiere",background ="aqua")),
             column(3,
                    box(flexdashboard::gaugeOutput("plt2"),
-                       width=20,title="Accident selon la meteo",background ="blue")),
+                       height=50,width=20,title="Accident selon la meteo",background ="aqua")),
             column(3,
                    box(flexdashboard::gaugeOutput("plt3"),
-                       width=20,title="Accident selon les vehicules",background ="yellow"))
+                       height=50, width=20,title="Accident selon les vehicules",background ="aqua"))
             ),
     
    tabItem (tabName = "chartbar",
@@ -76,9 +61,8 @@ body <- dashboardBody(
                   selected ="caracteristiques"
                   ),
       
-      selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere")
-      
-      
+      selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
+      actionButton("submit", "Go!")
     ),
     mainPanel(
       
@@ -86,17 +70,11 @@ body <- dashboardBody(
 )
 )
 ),
-   
-    
-    
-    #Second tab
+
     tabItem (tabName = "maps",
              leafletOutput("mymap")
     ),
-    
-    
-    
-    # Third tab content
+
     tabItem(tabName = "others",
             # h2("Analyse des accidents")
             
@@ -116,7 +94,6 @@ body <- dashboardBody(
               
               plotOutput("dates", height = 400)
             )
-            
 
     )
 
@@ -126,6 +103,6 @@ body <- dashboardBody(
 
 
 ui <- dashboardPage(
-  skin= "red", header, sidebar, body 
+ header, sidebar, body 
   
 )

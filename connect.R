@@ -69,3 +69,12 @@ date_result$mois <- month.abb[date_result$mois]
 
 
 
+veh <- ("select gravite_accident , count(distinct num_accident) as nombre FROM
+                   accident x
+        join usager a on a.usager_id = x.usager_id
+        group by 1 order by nombre asc
+         ")
+veh_result <- dbGetQuery(db, veh)
+print(  veh_result_pourecent <- ceiling(veh_result$nombre[1] * 100 / sum(veh1_result$nombre))
+)
+

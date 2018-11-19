@@ -73,7 +73,7 @@ server<-function(input, output,session) {
                      dbname = "accidents",
                      host = "shinyapp.mysql.database.azure.com", 
                      user = "myadmin@shinyapp", 
-                     password = "Shinyapp69")
+                     password = "Shinyapp69", encoding = "windows-1252")
       
       col_names <- sprintf ("show columns from %s", x)
       col_names_result <- dbGetQuery(db, col_names)
@@ -90,7 +90,8 @@ server<-function(input, output,session) {
   }
   
 
-  attributeInput <- reactive({
+  
+  attributeInput <-eventReactive(input$submit,{
     db = dbConnect(MySQL(),
                    dbname = "accidents",
                    host = "shinyapp.mysql.database.azure.com", 
@@ -99,36 +100,66 @@ server<-function(input, output,session) {
     query1 <- sprintf ("select %s as attribut, count(distinct num_accident) as nombre FROM
                        %s x
                        join accident a on a.%s_id = x.%s_id
-                       group by 1",input$attribute, input$dimension, input$dimension, input$dimension)
+                       group by 1 order by nombre desc",input$attribute, input$dimension, input$dimension, input$dimension)
     
     result <- dbGetQuery(db, query1)
-  })
-  
+  }
+  )
 
   output$view <- renderPlot({
   donnee <- attributeInput()
-
+  Encoding(donnee$attribut) <- "windows-1252"
     barplot(donnee$nombre , 
            las=2,
             names.arg = donnee$attribut,
-            ylab="Number of accidents",
-            xlab="attribut"
+            ylab="Number of accidents"
+           
    )   
   })
   
- 
-  output$progressBox <- renderInfoBox({
+  accident <- sprintf("select  count(distinct num_accident) as nombre FROM accident ")
+  accident_result <- dbGetQuery(db, accident)
+  output$infobox1 <- renderInfoBox({
     infoBox(
-      "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
+      "Accidents en 2017", accident_result$nombre, icon = icon("road"),
       color = "purple"
     )
   })
-  output$approvalBox <- renderInfoBox({
+  
+  usager <- sprintf("select  count(distinct usager_id) as nombre FROM accident ")
+  usager_result <- dbGetQuery(db, usager)
+  output$infobox2 <- renderInfoBox({
     infoBox(
-      "Approval", "80%", icon = icon("thumbs-up", lib = "glyphicon"),
+      "Usagers", usager_result$nombre, icon = icon("user"),
       color = "yellow"
     )
   })
+  
+  
+  veh <- sprintf("select  count(distinct vehicule_id) as nombre FROM accident ")
+  veh_result <- dbGetQuery(db, veh)
+  output$infobox3 <- renderInfoBox({
+    infoBox(
+      "Vehicules", veh_result$nombre, icon = icon("car")
+    
+    )
+  })
+  
+  veh1 <- ("select gravite_accident , count(distinct num_accident) as nombre FROM
+                   accident x
+          join usager a on a.usager_id = x.usager_id
+          group by 1 order by nombre asc
+          ")
+  veh1_result <- dbGetQuery(db, veh1)
+  veh1_result_pourecent <- ceiling(veh1_result$nombre[1] * 100 / sum(veh1_result$nombre))
+  output$infobox4 <- renderInfoBox({
+    infoBox(
+      "Nombre de morts", paste0(veh1_result$nombre[1], " morts = ",veh1_result_pourecent, " %"),
+      icon = icon("times"),  color = "blue"
+    )
+  })
+  
+  
   output$progressBox2 <- renderInfoBox({
     infoBox(
       "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
@@ -167,7 +198,6 @@ server<-function(input, output,session) {
      gauge(atmosphere_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(atmosphere_result$atmosphere[1]),gaugeSectors(
        success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
      ))
-     
    })
    
    vehicule <- ("select categorie_vehicule as categorie , count(distinct num_accident) as nombre FROM
@@ -192,10 +222,10 @@ server<-function(input, output,session) {
    #date_result$date <- ymd(date_result$date)
    
    date_result$mois <- month.abb[date_result$mois]
+   
    output$dates <- renderPlot({
     
      ggplot(date_result, aes(mois, nombre,group =1)) +geom_line() +
-      
        labs(x = "Mois", y = "Nombre d accidents ", 
             title = "Evolution du nombre d'accidents par mois")
    })
