@@ -109,12 +109,13 @@ server<-function(input, output,session) {
   output$view <- renderPlot({
   donnee <- attributeInput()
   Encoding(donnee$attribut) <- "windows-1252"
-    barplot(donnee$nombre , 
-           las=2,
-            names.arg = donnee$attribut,
-            ylab="Number of accidents"
-           
-   )   
+    par(mar=c(12,5,5,5))
+    my_bar=barplot(donnee$nombre , border=F , names.arg=donnee$attribut , las=2 , col=c(rgb(0.3,0.1,0.4,0.6) , rgb(0.3,0.5,0.4,0.6) , rgb(0.3,0.9,0.4,0.6) ,  rgb(0.3,0.9,0.4,0.6)) , main="" )
+    abline(v=c(4.9 , 9.7) , col="grey")
+    
+    # Add the text 
+    text(my_bar, donnee$nombre+0.4 , paste("n = ",donnee$nombre,sep="") ,cex=1) 
+    
   })
   
   accident <- sprintf("select  count(distinct num_accident) as nombre FROM accident ")
@@ -218,16 +219,12 @@ server<-function(input, output,session) {
          group by 1,2 order by d.mois asc
          ")
    date_result <- dbGetQuery(db, date)
-   
-   #date_result$date <- ymd(date_result$date)
-   
-   date_result$mois <- month.abb[date_result$mois]
+   #date_result$date <- ymd(date_result$date)   date_result$mois <- month.abb[date_result$mois]
    
    output$dates <- renderPlot({
     
      ggplot(date_result, aes(mois, nombre,group =1)) +geom_line() +
-       labs(x = "Mois", y = "Nombre d accidents ", 
-            title = "Evolution du nombre d'accidents par mois")
+       labs(x = "Mois", y = "Nombre d accidents ")
    })
    
 }

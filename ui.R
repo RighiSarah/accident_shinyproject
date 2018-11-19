@@ -17,6 +17,7 @@ sidebar <- dashboardSidebar(
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("maps", icon = icon("globe"), tabName = "maps"),
+    menuItem("Pie", icon = icon("chart-pie"), tabName = "pie"),
     menuItem("others", icon = icon("th"), tabName = "others")
     )
 )
@@ -38,6 +39,7 @@ body <- dashboardBody(
               infoBoxOutput("infobox3", width = 3),
               infoBoxOutput("infobox4", width = 3)
             ),
+            fluidRow (),
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
                        height=50,width=20,title="Accident selon la lumiere",background ="aqua")),
@@ -91,7 +93,7 @@ body <- dashboardBody(
               
             ),
             mainPanel(
-              
+              h1("Evolution du nombre d'accidents par mois"),
               plotOutput("dates", height = 400)
             )
 
