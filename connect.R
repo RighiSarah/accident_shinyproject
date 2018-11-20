@@ -67,14 +67,14 @@ date_result <- dbGetQuery(db, date)
 date_result$mois <- month.abb[date_result$mois]
 
 
+query1 <- sprintf ("select x.sexe as attribut, count(distinct num_accident) as nombre FROM
+                        usager x
+                   join accident a on a.usager_id = x.usager_id
+                   group by 1 order by nombre desc")
 
+result <- dbGetQuery(db, query1)
 
-veh <- ("select gravite_accident , count(distinct num_accident) as nombre FROM
-                   accident x
-        join usager a on a.usager_id = x.usager_id
-        group by 1 order by nombre asc
-         ")
-veh_result <- dbGetQuery(db, veh)
-print(  veh_result_pourecent <- ceiling(veh_result$nombre[1] * 100 / sum(veh1_result$nombre))
-)
-
+p <- plot_ly(data, labels = ~data$attribut, values = ~data$nombre, type = 'pie') %>%
+  layout(title = 'United States Personal Expenditures by Categories in 1960',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
