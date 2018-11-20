@@ -1,9 +1,11 @@
 library(shiny)
 library(DBI)
+library(RMySQL)
+library(shiny)
 library(shinydashboard)
 library(RMySQL)
 library(leaflet)
-library(flexdashboard) #to have an interactive dashboard
+library(flexdashboard)
 
 # Define UI for dataset viewer application
 
@@ -11,7 +13,6 @@ header <- dashboardHeader(title = "Accidents dashboard")
 
 sidebar <- dashboardSidebar(
   
-  # Menu a gauche 
   sidebarMenu(
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
@@ -21,7 +22,6 @@ sidebar <- dashboardSidebar(
     )
 )
 
-
 body <- dashboardBody(
   
   #first tab
@@ -30,15 +30,13 @@ body <- dashboardBody(
             h2("Informations KPI"),
             fluidRow(
               # A static infoBox
-              # infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
+              #   infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
               # Dynamic infoBoxes
               infoBoxOutput("infobox1", width = 3),
               infoBoxOutput("infobox2", width = 3),
               infoBoxOutput("infobox3", width = 3),
               infoBoxOutput("infobox4", width = 3)
             ),
-            
-            #Interactive gauge chart
             fluidRow (),
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
@@ -50,8 +48,7 @@ body <- dashboardBody(
                    box(flexdashboard::gaugeOutput("plt3"),
                        height=50, width=20,title="Accident selon les vehicules",background ="aqua"))
             ),
-   
-    #Second tab 
+    
    tabItem (tabName = "chartbar",
      titlePanel("Create your barchart"),
   
@@ -63,24 +60,43 @@ body <- dashboardBody(
                          c("caracteristiques", "lieux", "usager", "vehicule","departement"),
                   selected ="caracteristiques"
                   ),
-      
       selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
       actionButton("submit", "Go!")
     ),
-    
     mainPanel(
+      
       plotOutput("view", height = 400)
 )
 )
 ),
-    
-    #Third tab
+
     tabItem (tabName = "maps",
              leafletOutput("mymap")
     ),
-    
+    tabItem (tabName = "pie",
+             h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
+             
+             box(
+               title = "Analyse des caracteristiques des usagers", status = "primary", solidHeader = TRUE,
+               collapsible = TRUE,
+               selectInput("usager", "Choose an attribute",
+                           c("categorie_usager", "gravite_accident", "sexe", "trajet","securite"),
+                           selected ="sexe"
+               ),
+               actionButton("submitPie", "Submit"),
+               plotOutput("pie1", height = 400)
+             ),
+             
+             box(
+               title = "Inputs", status = "warning", solidHeader = TRUE,heigth = 400,
+               "Box content here", br(), "More box content"
+               
+               
+             )
+             
+             
+    ),
 
-    #fourth tab
     tabItem(tabName = "others",
             # h2("Analyse des accidents")
             
@@ -96,13 +112,14 @@ body <- dashboardBody(
               sliderInput("slider", "Slider input:", 1, 100, 50)
               
             ),
-            
             mainPanel(
               h1("Evolution du nombre d'accidents par mois"),
-              plotOutput("dates", height = 250)
+              plotOutput("dates", height = 400)
             )
 
     )
+
+    
   )
 ) 
 
