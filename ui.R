@@ -1,13 +1,13 @@
 library(shiny)
-library(DBI)
-library(RMySQL)
-library(shiny)
+library(DBI) #l"interface R pour interroger des base de donnee(DataBase Interface)
+library(RMySQL) 
 library(shinydashboard)
-library(RMySQL)
 library(leaflet)
 library(flexdashboard)
 
-# Define UI for dataset viewer application
+
+#Define UI for dataset viewer application
+#is a database interface and MySQL driver for R
 
 header <- dashboardHeader(title = "Accidents dashboard")
 

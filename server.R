@@ -1,12 +1,13 @@
 library(shiny)
 library(DBI)
 library(RMySQL)
-library(shiny)
 library(shinydashboard)
-library(RMySQL)
 library(leaflet)
+library(flexdashboard)
 
-#function that kills all mysql connections
+
+
+options(repos = c(CRAN = "http://cran.rstudio.com"))#function that kills all mysql connections
 killDbConnections <- function () {
   all_cons <- dbListConnections(MySQL())
   print(all_cons)
@@ -36,7 +37,9 @@ server<-function(input, output,session) {
                   join accident a on a.departement_id = d.departement_id
                   group by d.departement_id")
  
-  dept<- dbGetQuery(db, query)
+  dept<- dbGetQuery(db, query) 
+  
+  
   
   #we create the data frame 
   villes <- data.frame(nom = dept$nom_departement,
