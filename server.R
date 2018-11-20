@@ -1,12 +1,13 @@
 library(shiny)
-library(DBI)
+library(DBI) #A database interface definition for communication between R and relational database management systems
 library(RMySQL)
 library(shinydashboard)
-library(leaflet)
+library(leaflet) #cartographie en ligne
 library(ggplot2)
 library(scales)
-library(lubridate)
+library(lubridate) #Manipulation de dates
 
+#********************************************************#
 #function that kills all mysql connections
 killDbConnections <- function () {
   all_cons <- dbListConnections(MySQL())
@@ -21,16 +22,20 @@ server<-function(input, output,session) {
   
   # Kill all mysql connections before starting
   killDbConnections()
+#********************************************************# 
+
   
-  #connection to azure mysql database (cloud)
+    #connection to azure mysql database (cloud)
   db = dbConnect(MySQL(),
                  dbname = "accidents",
                  host = "shinyapp.mysql.database.azure.com", 
                  user = "myadmin@shinyapp", 
                  password = "Shinyapp69")
   
+  
   #disconnect when exiting the app
   on.exit(dbDisconnect(db), add = TRUE)
+  
   # query to import dataframe for the map
  query <- paste0("SELECT d.nom_departement,latitude, longitude, count(distinct num_accident) as nombre
                 FROM departement d
@@ -44,8 +49,9 @@ server<-function(input, output,session) {
                        lat = as.double(dept$latitude),
                        long = as.double(dept$longitude),
                        nombre = dept$nombre)
-  
   couleurs <- colorNumeric("RdYlBu", dept$nombre, n = 10)
+  
+  
   # reactive function that creates the map using leaflet library
   output$mymap <- renderLeaflet({
     yourMap <- leaflet(dept) %>% addTiles() %>%
@@ -57,7 +63,6 @@ server<-function(input, output,session) {
       addLegend(pal = couleurs, values = ~nombre, opacity = 0.9)
   })
   
-
   dimensionInput <- reactive({
     switch(input$dimension,
            "region" = region
@@ -110,7 +115,9 @@ server<-function(input, output,session) {
   donnee <- attributeInput()
   Encoding(donnee$attribut) <- "windows-1252"
     par(mar=c(12,5,5,5))
-    my_bar=barplot(donnee$nombre , border=F , names.arg=donnee$attribut , las=2 , col=c(rgb(0.3,0.1,0.4,0.6) , rgb(0.3,0.5,0.4,0.6) , rgb(0.3,0.9,0.4,0.6) ,  rgb(0.3,0.9,0.4,0.6)) , main="" )
+    my_bar=barplot(donnee$nombre , border=F , names.arg=donnee$attribut , las=2 , col=c(rgb(0.3,0.1,0.4,0.6),
+    rgb(0.3,0.5,0.4,0.6) , rgb(0.3,0.9,0.4,0.6) ,  rgb(0.3,0.9,0.4,0.6)) , main="" )
+    
     abline(v=c(4.9 , 9.7) , col="grey")
     
     # Add the text 
@@ -126,6 +133,7 @@ server<-function(input, output,session) {
       color = "purple"
     )
   })
+  
   
   usager <- sprintf("select  count(distinct usager_id) as nombre FROM accident ")
   usager_result <- dbGetQuery(db, usager)
@@ -178,8 +186,9 @@ server<-function(input, output,session) {
   lumiere <- sprintf("select lumiere , count(distinct num_accident) as nombre FROM
                    caracteristiques x
                    join accident a on a.caracteristiques_id = x.caracteristiques_id
-                   
                    group by 1 order by nombre desc ")
+  
+  
   lumiere_result <- dbGetQuery(db, lumiere)
   lumiere_result_pourecent <- ceiling(lumiere_result$nombre[1] * 100 / sum(lumiere_result$nombre))
    output$plt1 <- flexdashboard::renderGauge({
@@ -193,8 +202,10 @@ server<-function(input, output,session) {
                   caracteristiques x
                   join accident a on a.caracteristiques_id = x.caracteristiques_id
                   group by 1 order by nombre desc ")
+   
    atmosphere_result <- dbGetQuery(db, atmosphere)
    atmosphere_result_pourecent <- ceiling(atmosphere_result$nombre[1] * 100 / sum(atmosphere_result$nombre))
+   
    output$plt2 <- flexdashboard::renderGauge({
      gauge(atmosphere_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(atmosphere_result$atmosphere[1]),gaugeSectors(
        success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
@@ -205,6 +216,7 @@ server<-function(input, output,session) {
                   vehicule x
                   join accident a on a.vehicule_id = x.vehicule_id
                   group by 1 order by nombre desc ")
+   
    vehicule_result <- dbGetQuery(db, vehicule)
    vehicule_result_pourecent <- ceiling(vehicule_result$nombre[1] * 100 / sum(vehicule_result$nombre))
    output$plt3 <- flexdashboard::renderGauge({
@@ -213,6 +225,7 @@ server<-function(input, output,session) {
      ))
    })
    
+   # Evolution du nombre d'accidents par mois (plot)
    date <- ("select d.mois, d.annee , count(distinct num_accident) as nombre FROM
                accident x
          join date d on x.date_id = d.date_id
@@ -222,7 +235,6 @@ server<-function(input, output,session) {
    #date_result$date <- ymd(date_result$date)   date_result$mois <- month.abb[date_result$mois]
    
    output$dates <- renderPlot({
-    
      ggplot(date_result, aes(mois, nombre,group =1)) +geom_line() +
        labs(x = "Mois", y = "Nombre d accidents ")
    })

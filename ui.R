@@ -1,11 +1,9 @@
 library(shiny)
 library(DBI)
-library(RMySQL)
-library(shiny)
 library(shinydashboard)
 library(RMySQL)
 library(leaflet)
-library(flexdashboard)
+library(flexdashboard) #to have an interactive dashboard
 
 # Define UI for dataset viewer application
 
@@ -13,6 +11,7 @@ header <- dashboardHeader(title = "Accidents dashboard")
 
 sidebar <- dashboardSidebar(
   
+  # Menu a gauche 
   sidebarMenu(
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
@@ -22,23 +21,24 @@ sidebar <- dashboardSidebar(
     )
 )
 
+
 body <- dashboardBody(
   
   #first tab
   tabItems(
- 
-    
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
             fluidRow(
               # A static infoBox
-              #   infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
+              # infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
               # Dynamic infoBoxes
               infoBoxOutput("infobox1", width = 3),
               infoBoxOutput("infobox2", width = 3),
               infoBoxOutput("infobox3", width = 3),
               infoBoxOutput("infobox4", width = 3)
             ),
+            
+            #Interactive gauge chart
             fluidRow (),
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
@@ -50,7 +50,8 @@ body <- dashboardBody(
                    box(flexdashboard::gaugeOutput("plt3"),
                        height=50, width=20,title="Accident selon les vehicules",background ="aqua"))
             ),
-    
+   
+    #Second tab 
    tabItem (tabName = "chartbar",
      titlePanel("Create your barchart"),
   
@@ -66,17 +67,20 @@ body <- dashboardBody(
       selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
       actionButton("submit", "Go!")
     ),
+    
     mainPanel(
-      
       plotOutput("view", height = 400)
 )
 )
 ),
-
+    
+    #Third tab
     tabItem (tabName = "maps",
              leafletOutput("mymap")
     ),
+    
 
+    #fourth tab
     tabItem(tabName = "others",
             # h2("Analyse des accidents")
             
@@ -92,14 +96,13 @@ body <- dashboardBody(
               sliderInput("slider", "Slider input:", 1, 100, 50)
               
             ),
+            
             mainPanel(
               h1("Evolution du nombre d'accidents par mois"),
-              plotOutput("dates", height = 400)
+              plotOutput("dates", height = 250)
             )
 
     )
-
-    
   )
 ) 
 
