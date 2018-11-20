@@ -6,8 +6,6 @@ library(leaflet)
 library(ggplot2)
 library(scales)
 library(lubridate)
-library(plotly)
-
 
 #function that kills all mysql connections
 killDbConnections <- function () {
@@ -229,28 +227,4 @@ server<-function(input, output,session) {
        labs(x = "Mois", y = "Nombre d accidents ")
    })
    
-   pieInput <- eventReactive(input$submitPie,{
-     db = dbConnect(MySQL(),
-                    dbname = "accidents",
-                    host = "shinyapp.mysql.database.azure.com", 
-                    user = "myadmin@shinyapp", 
-                    password = "Shinyapp69")
-     query2 <- sprintf ("select x.%s as attribut, count(distinct num_accident) as nombre FROM
-                        usager x
-                        join accident a on a.usager_id = x.usager_id
-                        group by 1 order by nombre desc",input$usager)
-     
-     result2 <- dbGetQuery(db, query2)
-   })
-     
-   output$pie1 <- renderPlot({
-     data <- pieInput()
-     x <-  data$nombre
-     labels <-  data$attribut
-     piepercent<- round(100*x/sum(x), 1)
-     pie(x, labels = paste0(piepercent," %"), main = paste0("Analyse du nombre d'accidents selons l'axe ",input$usager)
-         ,radius= 1 ,col = rainbow(length(x)))
-     legend("topleft",data$attribut, cex = 0.9,
-            fill = rainbow(length(x)))
-   })
 }

@@ -26,6 +26,8 @@ body <- dashboardBody(
   
   #first tab
   tabItems(
+ 
+    
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
             fluidRow(
@@ -60,6 +62,7 @@ body <- dashboardBody(
                          c("caracteristiques", "lieux", "usager", "vehicule","departement"),
                   selected ="caracteristiques"
                   ),
+      
       selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
       actionButton("submit", "Go!")
     ),
@@ -72,29 +75,6 @@ body <- dashboardBody(
 
     tabItem (tabName = "maps",
              leafletOutput("mymap")
-    ),
-    tabItem (tabName = "pie",
-             h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
-             
-             box(
-               title = "Analyse des caracteristiques des usagers", status = "primary", solidHeader = TRUE,
-               collapsible = TRUE,
-               selectInput("usager", "Choose an attribute",
-                           c("categorie_usager", "gravite_accident", "sexe", "trajet","securite"),
-                           selected ="sexe"
-               ),
-               actionButton("submitPie", "Submit"),
-               plotOutput("pie1", height = 400)
-             ),
-             
-             box(
-               title = "Inputs", status = "warning", solidHeader = TRUE,heigth = 400,
-               "Box content here", br(), "More box content"
-               
-               
-             )
-             
-             
     ),
 
     tabItem(tabName = "others",
