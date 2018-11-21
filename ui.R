@@ -71,6 +71,7 @@ body <- dashboardBody(
 ),
 
     tabItem (tabName = "maps",
+             h2("Repartition des accidents selon les departement en France metropolitaine et outre-mer "),
              leafletOutput("mymap")
     ),
     tabItem (tabName = "pie",
