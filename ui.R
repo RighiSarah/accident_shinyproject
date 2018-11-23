@@ -3,9 +3,8 @@ library(DBI)
 library(RMySQL)
 library(shiny)
 library(shinydashboard)
-library(RMySQL)
 library(leaflet)
-library(flexdashboard)
+library(flexdashboard)#to have an interactive dashboard
 
 # Define UI for dataset viewer application
 
@@ -13,8 +12,9 @@ header <- dashboardHeader(title = "Accidents Analysis")
 
 sidebar <- dashboardSidebar(
   
+  # Menu a gauche 
   sidebarMenu(
-    menuItem("Description", tabName = "description", icon = icon("dashboard")),
+    menuItem("Description", tabName = "description", icon = icon("list-alt")),
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("Maps", icon = icon("globe"), tabName = "maps"),
@@ -51,6 +51,7 @@ body <- dashboardBody(
                )
              )
              ),
+    
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
             fluidRow(
@@ -62,6 +63,8 @@ body <- dashboardBody(
               infoBoxOutput("infobox3", width = 3),
               infoBoxOutput("infobox4", width = 3)
             ),
+            
+            #Interactive gauge chart
             fluidRow (),
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
@@ -74,6 +77,8 @@ body <- dashboardBody(
                        height=50, width=20,title="Accident selon les vehicules",background ="aqua"))
             ),
     
+    
+    #Second tab  
    tabItem (tabName = "chartbar",
      titlePanel("Create your barchart"),
   
@@ -92,7 +97,7 @@ body <- dashboardBody(
 )
 )
 ),
-
+    #Third tab
     tabItem (tabName = "maps",
              column(4,
                     box(flexdashboard::gaugeOutput("plt4"),
@@ -108,6 +113,8 @@ body <- dashboardBody(
    
             
     ),
+
+    #fourth tab
     tabItem (tabName = "pie", height = 5000, width= 500,
              #h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
              

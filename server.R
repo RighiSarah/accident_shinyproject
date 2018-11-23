@@ -1,16 +1,16 @@
 library(shiny)
-library(DBI)
+library(DBI) #A database interface definition for communication between R and relational database management systems
 library(RMySQL)
 library(shinydashboard)
-library(leaflet)
+library(leaflet)#cartographie en ligne
 library(ggplot2)
 library(scales)
-library(lubridate)
+library(lubridate)#Manipulation de dates
 #library(plotly)
 library(Hmisc)
-library(pastecs)
+#library(pastecs)
 
-
+#********************************************************#
 #function that kills all mysql connections
 killDbConnections <- function () {
   all_cons <- dbListConnections(MySQL())
@@ -25,6 +25,8 @@ server<-function(input, output,session) {
   
   # Kill all mysql connections before starting
   killDbConnections()
+
+#********************************************************#  
   
   #connection to azure mysql database (cloud)
   db = dbConnect(MySQL(),
@@ -52,6 +54,7 @@ server<-function(input, output,session) {
                       group by 1 limit %s",input$obs)
     dataset_result<- dbGetQuery(db, dataset)
   })
+  
   
   # Show the first n observations
   output$tableView <- renderTable({
