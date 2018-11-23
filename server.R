@@ -6,7 +6,9 @@ library(leaflet)
 library(ggplot2)
 library(scales)
 library(lubridate)
-library(plotly)
+#library(plotly)
+library(Hmisc)
+library(pastecs)
 
 
 #function that kills all mysql connections
@@ -33,16 +35,89 @@ server<-function(input, output,session) {
   
   #disconnect when exiting the app
   on.exit(dbDisconnect(db), add = TRUE)
+  datasetInput <- reactive ({
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    dataset <- sprintf("select a.num_accident, d.date, count(usager_id) as usagers, r.nom_region, c.lumiere,
+                      v.categorie_vehicule
+                      from accident a 
+                      join caracteristiques c on c.caracteristiques_id = a.caracteristiques_id
+                      join vehicule v on v.vehicule_id = a.vehicule_id
+                      join date d on d.date_id = a.date_id
+                      join departement dpt on dpt.departement_id = a.departement_id
+                      join region r on r.region_id = dpt.region_id
+                      group by 1 limit %s",input$obs)
+    dataset_result<- dbGetQuery(db, dataset)
+  })
+  
+  # Show the first n observations
+  output$tableView <- renderTable({
+    
+    head(datasetInput(), n = input$obs)
+  })
+  output$NbRows <- renderText({ 
+    paste("You have selected to show ", input$obs," lines.")
+  })
+  
+  output$summary <- renderPrint({
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    dataset <- sprintf("select  u.sexe,  u.gravite_accident,u.securite,
+                       v.categorie_vehicule
+                       from accident a 
+                        join usager u on u.usager_id = a.usager_id
+                       join vehicule v on v.vehicule_id = a.vehicule_id
+                       join departement dpt on dpt.departement_id = a.departement_id
+                       join region r on r.region_id = dpt.region_id
+                       ")
+    dataset_result<- dbGetQuery(db, dataset)
+    describe(dataset_result)
+  })
+  
+  output$simplePlot <- renderPlot({
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    df_usager <- ("select u.sexe, u.annee_naissance , count(usager_id) as nombre_usagers
+                  from usager u
+                  group by 1 , 2")
+    df_usager_result <- dbGetQuery(db, df_usager)
+    
+    plot(df_usager_result[,c(df_usager_result$annee_naissance,df_usager_result$nombre_usagers)],
+         xlab = df_usager_result$annee_naissance, 
+         ylab = df_usager_result$nombre_usagers,
+       #  main=toupper(ifelse(input$dataset == "all iris data", "iris", input$dataset)), pch=16, cex = 2,
+         col = ifelse(df_usager_result$sexe == "Homme", palette()[1], 
+                      palette()[2] )
+         )
+    
+    legend("bottomright", legend = unique(df_usager_result[,5]), 
+           col = myColors(), title = expression(bold("Sexe")),
+           pch = 16, bty = "n", pt.cex = 2)
+    
+  })
+  
+  
   # query to import dataframe for the map
- query <- paste0("SELECT d.nom_departement,latitude, longitude, count(distinct num_accident) as nombre
+ query <- paste0("SELECT d.nom_departement,r.nom_region,latitude, longitude, count(distinct num_accident) as nombre
                 FROM departement d
                   join accident a on a.departement_id = d.departement_id
+                  join region r on r.region_id = d.region_id
                   group by d.departement_id")
  
   dept<- dbGetQuery(db, query)
   
   #we create the data frame 
   villes <- data.frame(nom = dept$nom_departement,
+                       region = dept$nom_region,
                        lat = as.double(dept$latitude),
                        long = as.double(dept$longitude),
                        nombre = dept$nombre)
@@ -54,7 +129,7 @@ server<-function(input, output,session) {
       addCircles(lng = ~longitude, lat = ~latitude,
                  weight = 1,
                  radius = ~sqrt(nombre) * 300, 
-                 popup = ~paste(nom_departement, ":", nombre),
+                 popup = ~paste(nom_departement, ":", nombre, "\n Region: ", nom_region),
                  color = ~couleurs(nombre), fillOpacity = 0.9) %>%
       addLegend(pal = couleurs, values = ~nombre, opacity = 0.9)
   })
@@ -215,18 +290,35 @@ server<-function(input, output,session) {
      ))
    })
    
-   date <- ("select d.mois, d.annee , count(distinct num_accident) as nombre FROM
+   
+   dategraphInput <- reactive({
+     db = dbConnect(MySQL(),
+                    dbname = "accidents",
+                    host = "shinyapp.mysql.database.azure.com", 
+                    user = "myadmin@shinyapp", 
+                    password = "Shinyapp69")
+     
+
+   
+     date <- sprintf("select EXTRACT(%s from date) as type_date , count(distinct num_accident) as nombre FROM
                accident x
-         join date d on x.date_id = d.date_id
-         group by 1,2 order by d.mois asc
-         ")
-   date_result <- dbGetQuery(db, date)
-   #date_result$date <- ymd(date_result$date)   date_result$mois <- month.abb[date_result$mois]
+              join date d on x.date_id = d.date_id
+              group by 1 
+              ",input$radio)
+     date_result <- dbGetQuery(db, date)
+     
+    #date_result$mois <- month.abb[date_result$type_date]
+     
+
+   })
+
    
    output$dates <- renderPlot({
-    
-     ggplot(date_result, aes(mois, nombre,group =1)) +geom_line() +
-       labs(x = "Mois", y = "Nombre d accidents ")
+     date_result <- dategraphInput()
+     if (input$radio =="MONTH"){ date_result$type_date <- month.abb[date_result$type_date] }
+     ggplot(date_result, aes(type_date, nombre,group =1)) +geom_line(color = "#00AFBB", size = 2)+
+       labs(x = input$radio, y = "Nombre d accidents ")
+     
    })
    
    pieInput <- eventReactive(input$submitPie,{
@@ -235,12 +327,22 @@ server<-function(input, output,session) {
                     host = "shinyapp.mysql.database.azure.com", 
                     user = "myadmin@shinyapp", 
                     password = "Shinyapp69")
-     query2 <- sprintf ("select x.%s as attribut, count(distinct num_accident) as nombre FROM
+     mesure1 <- sprintf ("select x.%s as attribut, count(distinct usager_id) as nombre FROM
+                        usager x
+                        
+                        group by 1 order by nombre desc",input$usager)
+     
+     mesure_result1 <- dbGetQuery(db, mesure1)
+     mesure2 <- sprintf ("select x.%s as attribut, count(distinct num_accident) as nombre FROM
                         usager x
                         join accident a on a.usager_id = x.usager_id
                         group by 1 order by nombre desc",input$usager)
      
-     result2 <- dbGetQuery(db, query2)
+     mesure_result2 <- dbGetQuery(db, mesure2)
+     switch(input$mesure,
+            "nombre d'usagers" = mesure_result2,
+            "nombre d'accidents"= mesure_result1
+     )
    })
      
    output$pie1 <- renderPlot({
@@ -253,4 +355,31 @@ server<-function(input, output,session) {
      legend("topleft",data$attribut, cex = 0.9,
             fill = rainbow(length(x)))
    })
+
+pieInput2 <- reactive({
+  db = dbConnect(MySQL(),
+                 dbname = "accidents",
+                 host = "shinyapp.mysql.database.azure.com", 
+                 user = "myadmin@shinyapp", 
+                 password = "Shinyapp69")
+  mesure1 <- sprintf ("select %s as attribut, count(distinct x.num_accident) as nombre FROM
+                      accident x
+                      join caracteristiques c on c.caracteristiques_id= x.caracteristiques_id
+                      join lieux l on l.lieux_id = x.lieux_id
+                      group by 1 ",input$caracteristique)
+  
+  mesure_result1 <- dbGetQuery(db, mesure1)
+
+})
+
+output$pie2 <- renderPlot({
+  data <- pieInput2()
+  x <-  data$nombre
+  labels <-  data$attribut
+  piepercent<- round(100*x/sum(x), 1)
+  pie(x, labels = paste0(piepercent," %"), main = paste0("Analyse du nombre d'accidents selons l'axe ",input$caracteristique)
+      ,radius= 1 ,col = rainbow(length(x)))
+  legend("topright",data$attribut, cex = 0.4,
+         fill = rainbow(length(x)))
+})
 }

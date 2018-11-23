@@ -9,16 +9,17 @@ library(flexdashboard)
 
 # Define UI for dataset viewer application
 
-header <- dashboardHeader(title = "Accidents dashboard")
+header <- dashboardHeader(title = "Accidents Analysis")
 
 sidebar <- dashboardSidebar(
   
   sidebarMenu(
+    menuItem("Description", tabName = "description", icon = icon("dashboard")),
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
-    menuItem("maps", icon = icon("globe"), tabName = "maps"),
-    menuItem("Pie", icon = icon("chart-pie"), tabName = "pie"),
-    menuItem("others", icon = icon("th"), tabName = "others")
+    menuItem("Maps", icon = icon("globe"), tabName = "maps"),
+    menuItem("Pie", icon = icon("stats-circle",lib ="glyphicon"), tabName = "pie"),
+    menuItem("Chart Line", icon = icon("stats",lib= "glyphicon"), tabName = "others")
     )
 )
 
@@ -26,6 +27,30 @@ body <- dashboardBody(
   
   #first tab
   tabItems(
+    tabItem (tabName = "description",
+             # Application title
+             titlePanel("Descriptive statistics of Iris dataset with R and Shiny Apps"),
+             
+             # Sidebar with controls 
+             sidebarLayout(
+               sidebarPanel(#width=2,
+                 h3("Filtering data"),
+                  numericInput("obs", "Number of observations to view on table:", 10)
+                           ),
+               
+               # MainPanel divided into many tabPanel
+               mainPanel(#width = 10,
+                 tabsetPanel(
+                   tabPanel("Plot", h1("Scatterplot"), plotOutput("simplePlot"), h1("Boxplot"), plotOutput("boxPlot")),
+                   tabPanel("Descriptive statistics", h1("Descriptive statistics"),verbatimTextOutput("summary")),
+                   tabPanel("Table", h1("Table"), textOutput("NbRows"), tableOutput("tableView")),
+                   tabPanel("Clustering", h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot"), 
+                            h1("Density-based cluster (DBSCAN)"), textOutput("dbscan_Param"), plotOutput("dbscanPlot"),
+                            h1("Decision tree"), plotOutput("treePlot"))
+                 ) 
+               )
+             )
+             ),
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
             fluidRow(
@@ -54,8 +79,6 @@ body <- dashboardBody(
   
   sidebarLayout(
     sidebarPanel(
-     # selectInput("dimension", "Choose a dimension:", 
-            #      choices = c("caracteristiques", "Lieux", "Usagers", "Vehicules","Departement")),
       selectInput("dimension", "Choose a dimension",
                          c("caracteristiques", "lieux", "usager", "vehicule","departement"),
                   selected ="caracteristiques"
@@ -71,26 +94,49 @@ body <- dashboardBody(
 ),
 
     tabItem (tabName = "maps",
-             h2("Repartition des accidents selon les departement en France metropolitaine et outre-mer "),
+             column(4,
+                    box(flexdashboard::gaugeOutput("plt4"),
+                        height=50,width=20,title="Accident selon la lumiere",background ="blue")),
+             column(4,
+                    box(flexdashboard::gaugeOutput("plt5"),
+                        height=50,width=20,title="Accident selon la meteo",background ="blue")),
+             column(4,
+                    box(flexdashboard::gaugeOutput("plt6"),
+                        height=50, width=20,title="Accident selon les vehicules",background ="blue")),
+             h2("Repartition du nombre d'accidents selon les departements en France metropolitaine et outre-mer "),
              leafletOutput("mymap")
+   
+            
     ),
-    tabItem (tabName = "pie",
-             h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
+    tabItem (tabName = "pie", height = 5000, width= 500,
+             #h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
              
              box(
                title = "Analyse des caracteristiques des usagers", status = "primary", solidHeader = TRUE,
                collapsible = TRUE,
-               selectInput("usager", "Choose an attribute",
+               selectInput("usager", "Choisissez un axe d'observation",
                            c("categorie_usager", "gravite_accident", "sexe", "trajet","securite"),
                            selected ="sexe"
                ),
+               selectInput("mesure", "Choisissez une mesure",
+                           c("nombre d'usagers", "nombre d'accidents"),
+                           selected ="nombre d'usagers"
+               ),
                actionButton("submitPie", "Submit"),
-               plotOutput("pie1", height = 400)
+               plotOutput("pie1", height = 280)
              ),
              
              box(
-               title = "Inputs", status = "warning", solidHeader = TRUE,heigth = 400,
-               "Box content here", br(), "More box content"
+               title = "Analyse des caracteristiques des accidents", status = "warning", solidHeader = TRUE,heigth = 500,
+             #  "Box content here", br(), "More box content"
+           #  title = "Analyse des caracteristiques des accidents", status = "primary", solidHeader = TRUE,
+             collapsible = TRUE,
+             selectInput("caracteristique", "Choisissez un axe d'observation",
+                         c("lumiere", "atmosphere", "surface", "categorie"),
+                         selected ="lumiere"
+             ),
+
+             plotOutput("pie2", height = 350)
                
                
              )
@@ -113,11 +159,17 @@ body <- dashboardBody(
               sliderInput("slider", "Slider input:", 1, 100, 50)
               
             ),
-            mainPanel(
-              h1("Evolution du nombre d'accidents par mois"),
-              plotOutput("dates", height = 400)
+            sidebarLayout(
+              sidebarPanel(
+                radioButtons("radio", label = h3("Choisissez le format de date"),
+                             choices = list("MONTH" , "WEEK","QUARTER"), 
+                             selected = "MONTH")
+              ),
+              mainPanel(
+                h1("Evolution temporelle du nombre d'accidents "),
+                plotOutput("dates", height = 400)
+              )
             )
-
     )
 
     
