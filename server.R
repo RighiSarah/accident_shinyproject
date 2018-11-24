@@ -228,13 +228,7 @@ server<-function(input, output,session) {
                   group by d.departement_id")
  
   dept<- dbGetQuery(db, query)
-  
-  #we create the data frame 
- # villes <- data.frame(nom = dept$nom_departement,
-         #              region = dept$nom_region,
-    #                   lat = as.double(dept$latitude),
-          #             long = as.double(dept$longitude),
-           #            nombre = dept$nombre)
+
   
   couleurs <- colorNumeric("RdYlBu", dept$nombre, n = 10)
   # reactive function that creates the map using leaflet library
@@ -400,6 +394,20 @@ server<-function(input, output,session) {
      ))
    })
    
+   region <- ("select r.nom_region as region , count(distinct num_accident) as nombre FROM
+                  accident a
+                  join departement d on a.departement_id = d.departement_id
+                  join region r on r.region_id = d.region_id
+                  group by 1 order by nombre desc ")
+   
+   region_result <- dbGetQuery(db, region)
+   region_result_pourecent <- ceiling(region_result$nombre[1] * 100 / sum(region_result$nombre))
+   
+   output$plt4 <- flexdashboard::renderGauge({
+     gauge(region_result_pourecent, min = 0, max = 100, symbol = '%', label = paste(region_result$region[1]),gaugeSectors(
+       success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
+     ))
+   })
    
    dategraphInput <- reactive({
      killDbConnections()

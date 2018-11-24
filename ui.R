@@ -131,15 +131,16 @@ body <- dashboardBody(width= 800,height = 600,
 ),
     #Third tab
     tabItem (tabName = "maps",
-             column(5,
-                    box(flexdashboard::gaugeOutput("plt4"),
-                        height=50,width=20,title="Accident selon la lumiere",background ="blue")),
-             column(5,
-                    box(flexdashboard::gaugeOutput("plt5"),
-                        height=50,width=20,title="Accident selon la meteo",background ="blue")),
-             br(),br(),br(),br(),
-
+         
+                 column(5,
+                        box(flexdashboard::gaugeOutput("plt4"),
+                            height=180,width=30,title="Accident selon la lumiere",background ="aqua")),
+                 column(5,
+                        box(flexdashboard::gaugeOutput("plt5"),
+                            height=180,width=30,title="Accident selon la meteo",background ="aqua")),
+             fluidRow (),
              h2("Repartition du nombre d'accidents selon les departements en France metropolitaine et outre-mer "),
+             fluidRow (),
              leafletOutput("mymap")
    
             
@@ -205,6 +206,6 @@ body <- dashboardBody(width= 800,height = 600,
 
 
 ui <- dashboardPage(
- header, sidebar, body 
+ header, sidebar, body ,skin="red"
   
 )
