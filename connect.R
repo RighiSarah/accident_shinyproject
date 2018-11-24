@@ -38,6 +38,14 @@ df_usager_result <- dbGetQuery(db, df_usager)
 
 df_usager_result$annee <- as.numeric(df_usager_result$annee)
 df_usager_result$nombre_usagers <- as.numeric(df_usager_result$nombre_usagers)
+
+region <- ("select r.nom_region as region , count(distinct num_accident) as nombre FROM
+                  accident a
+                  join departement d on a.departement_id = d.departement_id
+                  join region r on r.region_id = d.region_id
+                  group by 1 order by nombre desc ")
+
+region_result <- dbGetQuery(db, region)
 #p <- plot_ly(data, labels = ~data$attribut, values = ~data$nombre, type = 'pie') %>%
 #  layout(title = 'United States Personal Expenditures by Categories in 1960',
  #        xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),

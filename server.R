@@ -23,11 +23,11 @@ palette(c("#E73032", "#377EB8", "#4DAF4A", "#984EA3",
 #function that kills all mysql connections
 killDbConnections <- function () {
   all_cons <- dbListConnections(MySQL())
-  print(all_cons)
   for(con in all_cons)
     +  dbDisconnect(con)
- # print(paste(length(all_cons), " connections killed."))
+
 }
+
 #********************************************************#  
 
 #connection to azure mysql database (cloud)
@@ -135,7 +135,7 @@ server<-function(input, output,session) {
     plot( x =  df_usager_result$nombre_usagers,
          y= df_usager_result$annee,
          xlab = "usagers", ylab = "annee de naissance", abline(reg, col="purple"),
-         col = myColors(),width=2
+         col = myColors()
          # col= c("red", "blue")
        # col = ifelse(input_usager$attribut == "Homme", "blue", 
                   #  "red" )
@@ -408,6 +408,21 @@ server<-function(input, output,session) {
        success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
      ))
    })
+   region_result_pourecent2 <- ceiling(region_result$nombre[2] * 100 / sum(region_result$nombre))
+   output$plt5 <- flexdashboard::renderGauge({
+     gauge(region_result_pourecent2, min = 0, max = 100, symbol = '%', 
+           label = paste(region_result$region[2]),gaugeSectors(
+       success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
+     ))
+   })
+   region_result_pourecent3 <- ceiling(region_result$nombre[3] * 100 / sum(region_result$nombre))
+   output$plt6 <- flexdashboard::renderGauge({
+     gauge(region_result_pourecent3, min = 0, max = 100, symbol = '%', 
+           label = paste(region_result$region[3]),gaugeSectors(
+             success = c(100, 6), warning = c(5,1), danger = c(0, 1), colors = c("#CC6699")
+           ))
+   })
+
    
    dategraphInput <- reactive({
      killDbConnections()

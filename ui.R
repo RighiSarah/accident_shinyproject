@@ -23,7 +23,7 @@ sidebar <- dashboardSidebar(
     )
 )
 
-body <- dashboardBody(width= 800,height = 600,
+body <- dashboardBody(
   
   #first tab
   tabItems(
@@ -51,10 +51,10 @@ body <- dashboardBody(width= 800,height = 600,
                                           selected ="sexe"
                               )
                             ),
-                            mainPanel(height="100px",
-                              h1("Scatterplot"),fluidPage( plotOutput("simplePlot", width = "80%", height = "400px")),
-                              h1("Boxplot"),fluidPage(plotOutput("boxPlot"))
-                              
+                            mainPanel(
+                            
+                              h1("Scatterplot"),plotOutput("simplePlot", width = "80%", height = "400px"),
+                              h1("Boxplot"),plotOutput("boxPlot")
                             )
                             ),
                    tabPanel("Descriptive statistics", h1("Descriptive statistics"),verbatimTextOutput("summary")),
@@ -64,7 +64,7 @@ body <- dashboardBody(width= 800,height = 600,
                                  h3("Filtering data"),
                                   numericInput("obs", "Number of observations to view on table:", 10)
                                           ),
-                                mainPanel(width = 500,
+                                mainPanel(
                             h1("Table"), textOutput("NbRows"), tableOutput("tableView")
                             )
                             ),
@@ -74,7 +74,7 @@ body <- dashboardBody(width= 800,height = 600,
                               numericInput("clusters", "Cluster count", 3, min = 1, max = 9)
                               
                             ),
-                            mainPanel(width = 500,
+                            mainPanel(
                                       h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot"),
                                       h1("Decision tree"), plotOutput("treePlot"))
                                       )
@@ -100,13 +100,13 @@ body <- dashboardBody(width= 800,height = 600,
             fluidRow (),
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       height=50,width=20,title="Accident selon la lumiere",background ="aqua")),
+                       height=50,width=20,title="Accident selon la lumiere",background ="orange")),
             column(3,
                    box(flexdashboard::gaugeOutput("plt2"),
-                       height=50,width=20,title="Accident selon la meteo",background ="aqua")),
+                       height=50,width=20,title="Accident selon la meteo",background ="teal")),
             column(3,
                    box(flexdashboard::gaugeOutput("plt3"),
-                       height=50, width=20,title="Accident selon les vehicules",background ="aqua"))
+                       height=50, width=20,title="Accident selon les vehicules",background ="orange"))
             ),
     
     
@@ -116,11 +116,11 @@ body <- dashboardBody(width= 800,height = 600,
   
   sidebarLayout(
     sidebarPanel(
-      selectInput("dimension", "Choose a dimension",
+      selectInput("dimension", "Choisir une dimension",
                          c("caracteristiques", "lieux", "usager", "vehicule","departement"),
                   selected ="caracteristiques"
                   ),
-      selectInput("attribute", "Choose an attribute", c("lumiere"), selected ="lumiere"),
+      selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
       actionButton("submit", "Go!")
     ),
     mainPanel(
@@ -131,13 +131,16 @@ body <- dashboardBody(width= 800,height = 600,
 ),
     #Third tab
     tabItem (tabName = "maps",
-         
-                 column(5,
+                  h1("Classement des regions selon le nombre d'accidents "),
+                 column(4,
                         box(flexdashboard::gaugeOutput("plt4"),
-                            height=180,width=30,title="Accident selon la lumiere",background ="aqua")),
-                 column(5,
+                            height=180,width=30,title="Premiere",background ="navy")),
+                 column(4,
                         box(flexdashboard::gaugeOutput("plt5"),
-                            height=180,width=30,title="Accident selon la meteo",background ="aqua")),
+                            height=180,width=30,title="Seconde",background ="teal")),
+             column(4,
+                    box(flexdashboard::gaugeOutput("plt6"),
+                        height=180,width=30,title="Troisieme",background ="olive")),
              fluidRow (),
              h2("Repartition du nombre d'accidents selon les departements en France metropolitaine et outre-mer "),
              fluidRow (),
@@ -166,7 +169,7 @@ body <- dashboardBody(width= 800,height = 600,
              ),
              
              box(
-               title = "Analyse des caracteristiques des accidents", status = "warning", solidHeader = TRUE,heigth = 500,
+               title = "Analyse des caracteristiques des accidents", status = "warning", solidHeader = TRUE,
              #  "Box content here", br(), "More box content"
            #  title = "Analyse des caracteristiques des accidents", status = "primary", solidHeader = TRUE,
              collapsible = TRUE,
