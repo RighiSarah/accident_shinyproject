@@ -19,30 +19,43 @@ killDbConnections <- function () {
     +  dbDisconnect(con)
   print(paste(length(all_cons), " connections killed."))
 }
+#********************************************************#  
+
+#connection to azure mysql database (cloud)
+connection_sql <- function(){
+  
+  # Kill all mysql connections before starting
+  killDbConnections()
+  db <- dbConnect(MySQL(),
+                  dbname = "accidents",
+                  host = "shinyapp.mysql.database.azure.com", 
+                  user = "myadmin@shinyapp", 
+                  password = "Shinyapp69")
+  
+  #disconnect when exiting the app
+  on.exit(dbDisconnect(db), add = TRUE)
+}
+
 
 # server code to start the shiny app
 server<-function(input, output,session) {
   
-  # Kill all mysql connections before starting
-  killDbConnections()
 
-#********************************************************#  
-  
-  #connection to azure mysql database (cloud)
+  killDbConnections()
   db = dbConnect(MySQL(),
                  dbname = "accidents",
                  host = "shinyapp.mysql.database.azure.com", 
                  user = "myadmin@shinyapp", 
                  password = "Shinyapp69")
-  
-  #disconnect when exiting the app
-  on.exit(dbDisconnect(db), add = TRUE)
+
   datasetInput <- reactive ({
+    killDbConnections()
     db = dbConnect(MySQL(),
                    dbname = "accidents",
                    host = "shinyapp.mysql.database.azure.com", 
                    user = "myadmin@shinyapp", 
-                   password = "Shinyapp69")
+                  password = "Shinyapp69")
+   
     dataset <- sprintf("select a.num_accident, d.date, count(usager_id) as usagers, r.nom_region, c.lumiere,
                       v.categorie_vehicule
                       from accident a 
@@ -66,11 +79,13 @@ server<-function(input, output,session) {
   })
   
   output$summary <- renderPrint({
+    killDbConnections()
     db = dbConnect(MySQL(),
-                   dbname = "accidents",
-                   host = "shinyapp.mysql.database.azure.com", 
-                   user = "myadmin@shinyapp", 
-                   password = "Shinyapp69")
+                    dbname = "accidents",
+                    host = "shinyapp.mysql.database.azure.com", 
+                    user = "myadmin@shinyapp", 
+                    password = "Shinyapp69")
+    
     dataset <- sprintf("select  u.sexe,  u.gravite_accident,u.securite,
                        v.categorie_vehicule
                        from accident a 
@@ -84,11 +99,14 @@ server<-function(input, output,session) {
   })
   
   output$simplePlot <- renderPlot({
+    killDbConnections()
     db = dbConnect(MySQL(),
                    dbname = "accidents",
                    host = "shinyapp.mysql.database.azure.com", 
-                   user = "myadmin@shinyapp", 
-                   password = "Shinyapp69")
+                  user = "myadmin@shinyapp", 
+                 password = "Shinyapp69")
+
+    
     df_usager <- ("select u.sexe, u.annee_naissance , count(usager_id) as nombre_usagers
                   from usager u
                   group by 1 , 2")
@@ -109,6 +127,7 @@ server<-function(input, output,session) {
   })
   
   
+
   # query to import dataframe for the map
  query <- paste0("SELECT d.nom_departement,r.nom_region,latitude, longitude, count(distinct num_accident) as nombre
                 FROM departement d
@@ -119,11 +138,11 @@ server<-function(input, output,session) {
   dept<- dbGetQuery(db, query)
   
   #we create the data frame 
-  villes <- data.frame(nom = dept$nom_departement,
-                       region = dept$nom_region,
-                       lat = as.double(dept$latitude),
-                       long = as.double(dept$longitude),
-                       nombre = dept$nombre)
+ # villes <- data.frame(nom = dept$nom_departement,
+         #              region = dept$nom_region,
+    #                   lat = as.double(dept$latitude),
+          #             long = as.double(dept$longitude),
+           #            nombre = dept$nombre)
   
   couleurs <- colorNumeric("RdYlBu", dept$nombre, n = 10)
   # reactive function that creates the map using leaflet library
@@ -138,17 +157,11 @@ server<-function(input, output,session) {
   })
   
 
-  dimensionInput <- reactive({
-    switch(input$dimension,
-           "region" = region
-           #"dim_region" = table2
-           
-    )
-  })
-  
   if (interactive()) {
     observe  ({
       x <- input$dimension
+      killDbConnections()
+      
       db = dbConnect(MySQL(),
                      dbname = "accidents",
                      host = "shinyapp.mysql.database.azure.com", 
@@ -172,6 +185,8 @@ server<-function(input, output,session) {
 
   
   attributeInput <-eventReactive(input$submit,{
+    killDbConnections()
+    
     db = dbConnect(MySQL(),
                    dbname = "accidents",
                    host = "shinyapp.mysql.database.azure.com", 
@@ -295,13 +310,12 @@ server<-function(input, output,session) {
    
    
    dategraphInput <- reactive({
+     killDbConnections()
      db = dbConnect(MySQL(),
                     dbname = "accidents",
                     host = "shinyapp.mysql.database.azure.com", 
                     user = "myadmin@shinyapp", 
                     password = "Shinyapp69")
-     
-
    
      date <- sprintf("select EXTRACT(%s from date) as type_date , count(distinct num_accident) as nombre FROM
                accident x
@@ -325,6 +339,7 @@ server<-function(input, output,session) {
    })
    
    pieInput <- eventReactive(input$submitPie,{
+     killDbConnections()
      db = dbConnect(MySQL(),
                     dbname = "accidents",
                     host = "shinyapp.mysql.database.azure.com", 
@@ -360,6 +375,7 @@ server<-function(input, output,session) {
    })
 
 pieInput2 <- reactive({
+  killDbConnections()
   db = dbConnect(MySQL(),
                  dbname = "accidents",
                  host = "shinyapp.mysql.database.azure.com", 
