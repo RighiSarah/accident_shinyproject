@@ -13,30 +13,8 @@ db = dbConnect(MySQL(),
                user = "myadmin@shinyapp", 
                password = "Shinyapp69")
 
-dataset <- sprintf("select  r.nom_region, c.lumiere, v.categorie_vehicule, u.sexe
-                   from accident a 
-                    join usager u on u.usager_id = a.usager_id
-                   join caracteristiques c on c.caracteristiques_id = a.caracteristiques_id
-                   join vehicule v on v.vehicule_id = a.vehicule_id
-                   join date d on d.date_id = a.date_id
-                   join departement dpt on dpt.departement_id = a.departement_id
-                   join region r on r.region_id = dpt.region_id
-                    ")
-dataset_result<- dbGetQuery(db, dataset)
-
-describe(dataset_result)
 
 
-dataset <- sprintf("select  u.sexe, r.nom_region, u.gravite_accident,
-                       v.categorie_vehicule
-                   from accident a 
-                   join usager u on u.usager_id = a.usager_id
-                   join vehicule v on v.vehicule_id = a.vehicule_id
-                   join departement dpt on dpt.departement_id = a.departement_id
-                   join region r on r.region_id = dpt.region_id
-                   ")
-dataset_result<- dbGetQuery(db, dataset)
-describe(dataset_result)
 
 query <- paste0("SELECT d.nom_departement,r.nom_region,latitude, longitude, count(distinct usager_id) as nombre
                 FROM departement d
@@ -46,16 +24,20 @@ query <- paste0("SELECT d.nom_departement,r.nom_region,latitude, longitude, coun
 
 dept<- dbGetQuery(db, query)
 
-
 db = dbConnect(MySQL(),
                dbname = "accidents",
                host = "shinyapp.mysql.database.azure.com", 
                user = "myadmin@shinyapp", 
                password = "Shinyapp69")
-df_usager <- ("select u.sexe, u.annee_naissance , count(usager_id) as nombre_usagers
-              from usager u
-              group by 1 , 2")
+df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers
+                         from usager u where u.annee_naissance is not null
+                         group by 1  ")
+
 df_usager_result <- dbGetQuery(db, df_usager)
+
+
+df_usager_result$annee <- as.numeric(df_usager_result$annee)
+df_usager_result$nombre_usagers <- as.numeric(df_usager_result$nombre_usagers)
 #p <- plot_ly(data, labels = ~data$attribut, values = ~data$nombre, type = 'pie') %>%
 #  layout(title = 'United States Personal Expenditures by Categories in 1960',
  #        xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),

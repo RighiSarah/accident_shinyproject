@@ -23,34 +23,66 @@ sidebar <- dashboardSidebar(
     )
 )
 
-body <- dashboardBody(
+body <- dashboardBody(width= 800,height = 600,
   
   #first tab
   tabItems(
     tabItem (tabName = "description",
              # Application title
-             titlePanel("Descriptive statistics of Iris dataset with R and Shiny Apps"),
+             titlePanel("Analyse descriptive de l'entrepot de donnees"),
              
              # Sidebar with controls 
-             sidebarLayout(
-               sidebarPanel(#width=2,
-                 h3("Filtering data"),
-                  numericInput("obs", "Number of observations to view on table:", 10)
-                           ),
+            # sidebarLayout(
+             #  sidebarPanel(#width=2,
+             #    h3("Filtering data"),
+              #    numericInput("obs", "Number of observations to view on table:", 10)
+               #            ),
                
                # MainPanel divided into many tabPanel
-               mainPanel(#width = 10,
+              # mainPanel(height = 500,width = 500,
                  tabsetPanel(
-                   tabPanel("Plot", h1("Scatterplot"), plotOutput("simplePlot"), h1("Boxplot"), plotOutput("boxPlot")),
+                   tabPanel("Plot",  br(),
+                          
+                           sidebarPanel(
+                             
+                              h3("Filtrer les donnees"),
+                              selectInput("scratterplot", "choisir un attribut",
+                                          c("sexe", "securite","gravite_accident","categorie_usager"),
+                                          selected ="sexe"
+                              )
+                            ),
+                            mainPanel(height="100px",
+                              h1("Scatterplot"),fluidPage( plotOutput("simplePlot", width = "80%", height = "400px")),
+                              h1("Boxplot"),fluidPage(plotOutput("boxPlot"))
+                              
+                            )
+                            ),
                    tabPanel("Descriptive statistics", h1("Descriptive statistics"),verbatimTextOutput("summary")),
-                   tabPanel("Table", h1("Table"), textOutput("NbRows"), tableOutput("tableView")),
-                   tabPanel("Clustering", h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot"), 
-                            h1("Density-based cluster (DBSCAN)"), textOutput("dbscan_Param"), plotOutput("dbscanPlot"),
-                            h1("Decision tree"), plotOutput("treePlot"))
+                   tabPanel("Table",
+                            
+                                sidebarPanel(#width=2,
+                                 h3("Filtering data"),
+                                  numericInput("obs", "Number of observations to view on table:", 10)
+                                          ),
+                                mainPanel(width = 500,
+                            h1("Table"), textOutput("NbRows"), tableOutput("tableView")
+                            )
+                            ),
+                   tabPanel("Clustering", 
+                            sidebarPanel(#width=2,
+                              h3("Filtering data"),
+                              numericInput("clusters", "Cluster count", 3, min = 1, max = 9)
+                              
+                            ),
+                            mainPanel(width = 500,
+                                      h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot"),
+                                      h1("Decision tree"), plotOutput("treePlot"))
+                                      )
+                           
                  ) 
-               )
-             )
+              # )
              ),
+             
     
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
@@ -154,18 +186,7 @@ body <- dashboardBody(
     tabItem(tabName = "others",
             # h2("Analyse des accidents")
             
-            box(
-              title = "Histogram", status = "primary", solidHeader = TRUE,
-              collapsible = TRUE,
-              plotOutput("plot3", height = 140)
-            ),
-            
-            box(
-              title = "Inputs", status = "warning", solidHeader = TRUE,
-              "Box content here", br(), "More box content",
-              sliderInput("slider", "Slider input:", 1, 100, 50)
-              
-            ),
+          
             sidebarLayout(
               sidebarPanel(
                 radioButtons("radio", label = h3("Choisissez le format de date"),
@@ -181,7 +202,7 @@ body <- dashboardBody(
 
     
   )
-) 
+)
 
 
 ui <- dashboardPage(

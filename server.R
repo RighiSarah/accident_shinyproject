@@ -8,7 +8,16 @@ library(scales)
 library(lubridate)#Manipulation de dates
 #library(plotly)
 library(Hmisc)
+library(rpart)
+library(party)
+library(fpc)
+library(regplot)
 #library(pastecs)
+
+
+# Define colors
+palette(c("#E73032", "#377EB8", "#4DAF4A", "#984EA3",
+          "#FF7F00", "#FFDD33", "#A65628", "#F781BF", "#999999"))
 
 #********************************************************#
 #function that kills all mysql connections
@@ -17,7 +26,7 @@ killDbConnections <- function () {
   print(all_cons)
   for(con in all_cons)
     +  dbDisconnect(con)
-  print(paste(length(all_cons), " connections killed."))
+ # print(paste(length(all_cons), " connections killed."))
 }
 #********************************************************#  
 
@@ -40,6 +49,14 @@ connection_sql <- function(){
 # server code to start the shiny app
 server<-function(input, output,session) {
   
+  myColors <- reactive({
+    switch(input$scratterplot,
+           "sexe" = c(palette()[1],palette()[2]),
+           "securite" = c(palette()[1],palette()[2]),
+           "gravite_accident" = c(palette()[1],palette()[2],palette()[3],palette()[4]),
+           "categorie_usager" = c(palette()[1],palette()[2],palette()[3],palette()[4])
+    )
+  })
 
   killDbConnections()
   db = dbConnect(MySQL(),
@@ -107,27 +124,102 @@ server<-function(input, output,session) {
                  password = "Shinyapp69")
 
     
-    df_usager <- ("select u.sexe, u.annee_naissance , count(usager_id) as nombre_usagers
+    df_usager <- sprintf("select u.%s , u.annee_naissance as annee , count(usager_id) as nombre_usagers
                   from usager u
-                  group by 1 , 2")
-    df_usager_result <- dbGetQuery(db, df_usager)
+                  group by 1 , 2",input$scratterplot)
     
-    plot(df_usager_result[,c(df_usager_result$annee_naissance,df_usager_result$nombre_usagers)],
-         xlab = df_usager_result$annee_naissance, 
-         ylab = df_usager_result$nombre_usagers,
-       #  main=toupper(ifelse(input$dataset == "all iris data", "iris", input$dataset)), pch=16, cex = 2,
-         col = ifelse(df_usager_result$sexe == "Homme", palette()[1], 
-                      palette()[2] )
+    df_usager_result <- dbGetQuery(db, df_usager)
+   #input_usager <- df_usager_result[,c('annee','nombre_usagers')]
+    reg <- lm(annee~nombre_usagers, data=df_usager_result)
+    
+    plot( x =  df_usager_result$nombre_usagers,
+         y= df_usager_result$annee,
+         xlab = "usagers", ylab = "annee de naissance", abline(reg, col="purple"),
+         col = myColors(),width=2
+         # col= c("red", "blue")
+       # col = ifelse(input_usager$attribut == "Homme", "blue", 
+                  #  "red" )
          )
     
-    legend("bottomright", legend = unique(df_usager_result[,5]), 
-           col = myColors(), title = expression(bold("Sexe")),
+    legend("bottomright", legend = unique(df_usager_result[,1]), 
+            col = myColors(),
+          # title = input$scratterplot,
            pch = 16, bty = "n", pt.cex = 2)
     
   })
   
+  # Show boxplot
+  output$boxPlot <- renderPlot({
+    killDbConnections()
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    df_usager <- sprintf("select u.%s ,u.annee_naissance as annee, count(usager_id) as nombre_usagers
+                         from usager u
+                         group by 1 ,2",input$scratterplot)
+    
+    df_usager_result <- dbGetQuery(db, df_usager)
+      boxplot(df_usager_result[,'nombre_usagers'] ~ df_usager_result[,1], xlab = input$scratterplot,
+               ylab = "nombre d'usagers",
+      border = "black", col = myColors()
+            
+      )
+    
+  })
+  # K-Means Plot
+  output$NbClust <- renderText({ 
+    paste("K-means clustering performed with ", input$clusters," clusters.")
+  })
   
-
+  clusters <- reactive({
+    killDbConnections()
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers
+                         from usager u where u.annee_naissance is not null
+                         group by 1 ")
+    
+    df_usager_result <- dbGetQuery(db, df_usager)
+  
+  })
+  
+  output$kmeansPlot <- renderPlot({
+    df_usager_result <- clusters()
+   clus<- kmeans(df_usager_result[,1:2], input$clusters)
+    plot(df_usager_result[,c('nombre_usagers','annee')],
+         col = clus$cluster,
+         pch = 20, cex = 2)
+    points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
+  })
+  
+  # Decision Tree
+  output$treePlot <- renderPlot({
+    killDbConnections()
+    db = dbConnect(MySQL(),
+                   dbname = "accidents",
+                   host = "shinyapp.mysql.database.azure.com", 
+                   user = "myadmin@shinyapp", 
+                   password = "Shinyapp69")
+    df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers , sexe
+                         from usager u
+                         group by 1 ,3")
+    
+    df_usager_result <- dbGetQuery(db, df_usager)
+    
+    df_usager_result$annee <- as.numeric(factor(df_usager_result$annee))
+    df_usager_result$nombre_usagers <- as.numeric(factor(df_usager_result$nombre_usagers))
+    
+    ctree <- ctree(sexe ~ annee +nombre_usagers, data = df_usager_result)
+    plot(ctree, type="simple")
+  })
+  
+  
+  
   # query to import dataframe for the map
  query <- paste0("SELECT d.nom_departement,r.nom_region,latitude, longitude, count(distinct num_accident) as nombre
                 FROM departement d
