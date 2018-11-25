@@ -199,25 +199,25 @@ server<-function(input, output,session) {
   })
   
   # Decision Tree
-  output$treePlot <- renderPlot({
-    killDbConnections()
-    db = dbConnect(MySQL(),
-                   dbname = "accidents",
-                   host = "shinyapp.mysql.database.azure.com", 
-                   user = "myadmin@shinyapp", 
-                   password = "Shinyapp69")
-    df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers , sexe
-                         from usager u
-                         group by 1 ,3")
+ # output$treePlot <- renderPlot({
+   # killDbConnections()
+   # db = dbConnect(MySQL(),
+                  # dbname = "accidents",
+                  # host = "shinyapp.mysql.database.azure.com", 
+                  # user = "myadmin@shinyapp", 
+                  # password = "Shinyapp69")
+   # df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers , sexe
+                        # from usager u
+                        # group by 1 ,3")
     
-    df_usager_result <- dbGetQuery(db, df_usager)
+   # df_usager_result <- dbGetQuery(db, df_usager)
     
-    df_usager_result$annee <- as.numeric(factor(df_usager_result$annee))
-    df_usager_result$nombre_usagers <- as.numeric(factor(df_usager_result$nombre_usagers))
+ #   df_usager_result$annee <- as.numeric(factor(df_usager_result$annee))
+ #   df_usager_result$nombre_usagers <- as.numeric(factor(df_usager_result$nombre_usagers))
     
-    ctree <- ctree(sexe ~ annee +nombre_usagers, data = df_usager_result)
-    plot(ctree, type="simple")
-  })
+ #   ctree <- ctree(sexe ~ nombre_usagers, data = df_usager_result)
+ #   plot(ctree, type="simple")
+  #})
   
   
   
@@ -337,7 +337,7 @@ server<-function(input, output,session) {
   veh1_result_pourecent <- ceiling(veh1_result$nombre[1] * 100 / sum(veh1_result$nombre))
   output$infobox4 <- renderInfoBox({
     infoBox(
-      "nombre de décès", paste0(veh1_result$nombre[1], " Mort = ",veh1_result_pourecent, " %"),
+      "nombre de décès", paste0(veh1_result$nombre[1]),# " Mort = ",veh1_result_pourecent, " %" ," " ),
       icon = icon("user"),  color = "blue" #frown
     )
   })

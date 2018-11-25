@@ -16,7 +16,7 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Description", tabName = "description", icon = icon("list-alt")),
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-    menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
+   # menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("Maps", icon = icon("globe"), tabName = "maps"),
     menuItem("Pie", icon = icon("chart-pie"), tabName = "pie"), #,lib ="glyphicon"
     menuItem("Chart Line", icon = icon("stats",lib= "glyphicon"), tabName = "others")
@@ -31,7 +31,7 @@ body <- dashboardBody(
   tabItems( 
     tabItem ( tabName = "description",fluidRow (
              # Application title
-             titlePanel("Analyse descriptive de l'entrepot de données"),
+             titlePanel("Analyse descriptive de l'entrepôt de données"),
              
              # Sidebar with controls 
             # sidebarLayout(
@@ -83,8 +83,9 @@ body <- dashboardBody(
                               
                             ),
                             mainPanel(
-                                      h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot"),
-                                      h1("Decision tree"), plotOutput("treePlot"))
+                                      h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot")
+                                      #h1("Decision tree"), plotOutput("treePlot")
+                                      )
                                       )
                            
                  ) 
@@ -94,8 +95,9 @@ body <- dashboardBody(
     
     
     #Second tab
+    
     tabItem(tabName = "dashboard",
-            h2("Informations KPI"),
+            h2("Indicateur de performance KPI"),
             
             fluidRow(
               # A static infoBox
@@ -108,42 +110,60 @@ body <- dashboardBody(
             ),
             
             #Interactive gauge chart
-            fluidRow (),
+          #fluidRow(column(12,align="center",
             
-            column(3,
+            column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       height=50,width=20,padding= 5, title="Accident selon la lumiere",background ="teal")),
+                       height=200,width=20, title="Accident selon la lumière",background ="blue")),
           
-            column(3,
+            column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt2"),
-                       height=50,width=20, title="Accident selon la meteo",background ="teal")),
+                       height=200,width=20, title="Accident selon la méteo",background ="yellow")),
            
-             column(3,
-                   box(flexdashboard::gaugeOutput("plt3"),
-                       height=50, width=20, title="Accident selon les vehicules",background ="teal"))
-            ),
+            column(align="center",width = 4,
+                   box(flexdashboard::gaugeOutput("plt3"),align="center",
+                       height=200, width=20, title="Accident selon les vehicules",background ="purple")
+          ),
+   fluidRow(column(12,
+    h3("Histogramme : selon différentes dimensions "),
     
+    sidebarLayout(
+      sidebarPanel(
+        selectInput("dimension", "Choisir une dimension",
+                    c("caracteristiques", "lieux", "usager", "vehicule","departement"),
+                    selected ="caracteristiques"
+        ),
+        selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
+        actionButton("submit", "Go!")
+      ),
+      mainPanel(
+        
+        plotOutput("view", height = 400)
+      )
+    )))),
+           
+
     
-    #Second tab  
-   tabItem (tabName = "chartbar",
-     titlePanel("Create your barchart"),
-  
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("dimension", "Choisir une dimension",
-                         c("caracteristiques", "lieux", "usager", "vehicule","departement"),
-                  selected ="caracteristiques"
-                  ),
-      selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
-      actionButton("submit", "Go!")
-    ),
-    mainPanel(
-      
-      plotOutput("view", height = 400)
-)
-)
-),
     #Third tab
+   #tabItem (tabName = "chartbar",
+     #titlePanel("Create your barchart"),
+  
+  #sidebarLayout(
+   #sidebarPanel(
+     # selectInput("dimension", "Choisir une dimension",
+                    #     c("caracteristiques", "lieux", "usager", "vehicule","departement"),
+                 # selected ="caracteristiques"
+                  #),
+      # selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
+      # actionButton("submit", "Go!")
+#     ),
+#     mainPanel(
+#       
+#       plotOutput("view", height = 400)
+# )
+# )
+# ),
+    #Fourth tab
     tabItem (tabName = "maps",
                   h1("Classement des regions selon le nombre d'accidents "),
                  column(4,
@@ -163,7 +183,7 @@ body <- dashboardBody(
             
     ),
 
-    #fourth tab
+    #fifth tab
     tabItem (tabName = "pie", height = 5000, width= 500,
              #h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
              
