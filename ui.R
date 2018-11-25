@@ -26,8 +26,8 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody( 
   
   #first tab
-  tabItems(
-    tabItem (tabName = "description",
+  tabItems( 
+    tabItem ( tabName = "description",
              # Application title
              titlePanel("Analyse descriptive de l'entrepot de donnees"),
              
@@ -41,7 +41,7 @@ body <- dashboardBody(
                # MainPanel divided into many tabPanel
               # mainPanel(height = 500,width = 500,
                  tabsetPanel(
-                   tabPanel("Plot",  br(),
+                  tabPanel("Plot",  br(),
                           
                            sidebarPanel(
                              
@@ -51,6 +51,8 @@ body <- dashboardBody(
                                           selected ="sexe"
                               )
                             ),
+                           
+
                             mainPanel(
                             column(width=10,
                               fluidRow(
@@ -59,6 +61,8 @@ body <- dashboardBody(
                               h1("Boxplot"),plotOutput("boxPlot")
                             )))
                             ),
+                  
+                        
                    tabPanel("Descriptive statistics", h1("Descriptive statistics"),verbatimTextOutput("summary")),
                    tabPanel("Table",
                             
@@ -167,7 +171,7 @@ body <- dashboardBody(
                            selected ="nombre d'usagers"
                ),
                actionButton("submitPie", "Submit"),
-               plotOutput("pie1", height = 280)
+               plotOutput("pie1", height = 242)
              ),
              
              box(

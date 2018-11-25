@@ -294,7 +294,7 @@ server<-function(input, output,session) {
     abline(v=c(4.9 , 9.7) , col="grey")
     
     # Add the text 
-    text(my_bar, donnee$nombre+0.4 , paste("n = ",donnee$nombre,sep="") ,cex=1) 
+    #text(my_bar, donnee$nombre+0.4 ,cex=1) #, paste("n = ",donnee$nombre,sep="") ,) 
     
   })
   
