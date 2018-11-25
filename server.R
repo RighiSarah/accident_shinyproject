@@ -514,7 +514,7 @@ output$pie2 <- renderPlot({
   piepercent<- round(100*x/sum(x), 1)
   pie(x, labels = paste0(piepercent," %"), main = paste0("Analyse du nombre d'accidents selons l'axe ",input$caracteristique)
       ,radius= 1 ,col = rainbow(length(x)))
-  legend("topright",data$attribut, cex = 0.4,
+  legend("bottomleft",data$attribut, cex = 0.9,
          fill = rainbow(length(x)))
 })
 }

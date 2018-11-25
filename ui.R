@@ -31,7 +31,7 @@ body <- dashboardBody(
   tabItems( 
     tabItem ( tabName = "description",fluidRow (
              # Application title
-             titlePanel("Analyse descriptive de l'entrepôt de données"),
+             titlePanel("Analyse descriptive des données"),
              
              # Sidebar with controls 
             # sidebarLayout(
@@ -47,7 +47,7 @@ body <- dashboardBody(
                           
                            sidebarPanel(
                              
-                              h3("Filtrer les donnees"),
+                              h3("Filtrage des données"),
                               selectInput("scratterplot", "choisir un attribut",
                                           c("sexe", "securite","gravite_accident","categorie_usager"),
                                           selected ="sexe"
@@ -65,12 +65,12 @@ body <- dashboardBody(
                             ),
                   
                         
-                   tabPanel("Descriptive statistics", h1("Descriptive statistics"),verbatimTextOutput("summary")),
+                   tabPanel("Descriptive statistics", h1("Statistique descriptive"),verbatimTextOutput("summary")),
                    tabPanel("Table",
                             
                                 sidebarPanel(#width=2,
-                                 h3("Filtering data"),
-                                  numericInput("obs", "Number of observations to view on table:", 10)
+                                 h3("Filtrage des données"),
+                                  numericInput("obs", "Nombre d'observations à afficher sur le tableau:", 10)
                                           ),
                                 mainPanel(
                             h1("Table"), textOutput("NbRows"), tableOutput("tableView")
@@ -78,8 +78,8 @@ body <- dashboardBody(
                             ),
                    tabPanel("Clustering", 
                             sidebarPanel(#width=2,
-                              h3("Filtering data"),
-                              numericInput("clusters", "Cluster count", 3, min = 1, max = 9)
+                              h3("Filtrage des données"),
+                              numericInput("clusters", "Nombre de cluster", 3, min = 1, max = 9)
                               
                             ),
                             mainPanel(
@@ -114,15 +114,15 @@ body <- dashboardBody(
             
             column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       height=200,width=20, title="Accident selon la lumière",background ="blue")),
+                       height=200,width=20, title="Accidents selon la lumière",background ="blue")),
           
             column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt2"),
-                       height=200,width=20, title="Accident selon la méteo",background ="yellow")),
+                       height=200,width=20, title="Accidents selon la méteo",background ="yellow")),
            
             column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt3"),align="center",
-                       height=200, width=20, title="Accident selon les vehicules",background ="purple")
+                       height=200, width=20, title="Accidents selon les véhicules",background ="purple")
           ),
    fluidRow(column(12,
     h3("Histogramme : selon différentes dimensions "),
@@ -165,18 +165,18 @@ body <- dashboardBody(
 # ),
     #Fourth tab
     tabItem (tabName = "maps",
-                  h1("Classement des regions selon le nombre d'accidents "),
+                  h1("Classement des régions selon le nombre d'accidents "),
                  column(4,
                         box(flexdashboard::gaugeOutput("plt4"),
-                            height=180,width=30,title="Premiere",background ="navy")),
+                            height=180,width=30,title="Première",background ="navy")),
                  column(4,
                         box(flexdashboard::gaugeOutput("plt5"),
                             height=180,width=30,title="Seconde",background ="teal")),
              column(4,
                     box(flexdashboard::gaugeOutput("plt6"),
-                        height=180,width=30,title="Troisieme",background ="olive")),
+                        height=180,width=30,title="Troisième",background ="olive")),
              fluidRow (),
-             h2("Repartition du nombre d'accidents selon les departements en France metropolitaine et outre-mer "),
+             h2("Répartition du nombre d'accidents selon les départements en France métropolitaine et outre-mer "),
              fluidRow (),
              leafletOutput("mymap")
    
@@ -188,7 +188,7 @@ body <- dashboardBody(
              #h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
              
              box(
-               title = "Analyse des caracteristiques des usagers", status = "primary", solidHeader = TRUE,
+               title = "Analyse des caractéristiques des usagers", status = "primary", solidHeader = TRUE,
                collapsible = TRUE,
                selectInput("usager", "Choisissez un axe d'observation",
                            c("categorie_usager", "gravite_accident", "sexe", "trajet","securite"),
@@ -203,7 +203,7 @@ body <- dashboardBody(
              ),
              
              box(
-               title = "Analyse des caracteristiques des accidents", status = "warning", solidHeader = TRUE,
+               title = "Analyse des caractéristiques des accidents", status = "warning", solidHeader = TRUE,
              #  "Box content here", br(), "More box content"
            #  title = "Analyse des caracteristiques des accidents", status = "primary", solidHeader = TRUE,
              collapsible = TRUE,
@@ -226,12 +226,12 @@ body <- dashboardBody(
           
             sidebarLayout(
               sidebarPanel(
-                radioButtons("radio", label = h3("Choisissez le format de date"),
+                radioButtons("radio", label = h3("Sélectionnez une période"),
                              choices = list("MONTH" , "WEEK","QUARTER"), 
                              selected = "MONTH")
               ),
               mainPanel(
-                h1("Evolution temporelle du nombre d'accidents "),
+                h1("Évolution temporelle du nombre d'accidents "),
                 plotOutput("dates", height = 400)
               )
             )
