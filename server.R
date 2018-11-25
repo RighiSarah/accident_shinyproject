@@ -115,6 +115,8 @@ server<-function(input, output,session) {
     describe(dataset_result)
   })
   
+  
+  #ScatterPlot
   output$simplePlot <- renderPlot({
     killDbConnections()
     db = dbConnect(MySQL(),
@@ -336,7 +338,7 @@ server<-function(input, output,session) {
   output$infobox4 <- renderInfoBox({
     infoBox(
       "nombre de décès", paste0(veh1_result$nombre[1], " Mort = ",veh1_result_pourecent, " %"),
-      icon = icon("frown"),  color = "blue"
+      icon = icon("user"),  color = "blue" #frown
     )
   })
   

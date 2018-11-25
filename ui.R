@@ -10,7 +10,7 @@ library(flexdashboard)#to have an interactive dashboard
 
 header <- dashboardHeader(title = "Accidents Analysis")
 
-sidebar <- dashboardSidebar(
+sidebar <- dashboardSidebar( 
   
   # Menu a gauche 
   sidebarMenu(
@@ -23,13 +23,15 @@ sidebar <- dashboardSidebar(
     )
 )
 
-body <- dashboardBody( 
+body <- dashboardBody(
+                      
+  
   
   #first tab
   tabItems( 
-    tabItem ( tabName = "description",
+    tabItem ( tabName = "description",fluidRow (
              # Application title
-             titlePanel("Analyse descriptive de l'entrepot de donnees"),
+             titlePanel("Analyse descriptive de l'entrepot de données"),
              
              # Sidebar with controls 
             # sidebarLayout(
@@ -54,8 +56,8 @@ body <- dashboardBody(
                            
 
                             mainPanel(
-                            column(width=10,
-                              fluidRow(
+                           column(width=11,
+                              fluidRow(height = 200,
                               h1("Scatterplot"),plotOutput("simplePlot"),
                               #width = "80%", height = "400px")
                               h1("Boxplot"),plotOutput("boxPlot")
@@ -87,9 +89,11 @@ body <- dashboardBody(
                            
                  ) 
               # )
-             ),
+             )),
              
     
+    
+    #Second tab
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
             
@@ -108,7 +112,7 @@ body <- dashboardBody(
             
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       height=50,width=20,title="Accident selon la lumiere",background ="teal")),
+                       height=50,width=20,padding= 5, title="Accident selon la lumiere",background ="teal")),
           
             column(3,
                    box(flexdashboard::gaugeOutput("plt2"),
@@ -116,7 +120,7 @@ body <- dashboardBody(
            
              column(3,
                    box(flexdashboard::gaugeOutput("plt3"),
-                       height=50, width=20,class = 'rightAlign', title="Accident selon les vehicules",background ="teal"))
+                       height=50, width=20, title="Accident selon les vehicules",background ="teal"))
             ),
     
     
