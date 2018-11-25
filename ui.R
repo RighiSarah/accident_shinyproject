@@ -23,7 +23,7 @@ sidebar <- dashboardSidebar(
     )
 )
 
-body <- dashboardBody(
+body <- dashboardBody( 
   
   #first tab
   tabItems(
@@ -52,10 +52,12 @@ body <- dashboardBody(
                               )
                             ),
                             mainPanel(
-                            
-                              h1("Scatterplot"),plotOutput("simplePlot", width = "80%", height = "400px"),
+                            column(width=10,
+                              fluidRow(
+                              h1("Scatterplot"),plotOutput("simplePlot"),
+                              #width = "80%", height = "400px")
                               h1("Boxplot"),plotOutput("boxPlot")
-                            )
+                            )))
                             ),
                    tabPanel("Descriptive statistics", h1("Descriptive statistics"),verbatimTextOutput("summary")),
                    tabPanel("Table",

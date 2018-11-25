@@ -164,7 +164,6 @@ server<-function(input, output,session) {
       boxplot(df_usager_result[,'nombre_usagers'] ~ df_usager_result[,1], xlab = input$scratterplot,
                ylab = "nombre d'usagers",
       border = "black", col = myColors()
-            
       )
     
   })
@@ -303,7 +302,7 @@ server<-function(input, output,session) {
   accident_result <- dbGetQuery(db, accident)
   output$infobox1 <- renderInfoBox({
     infoBox(
-      "Accidents en 2017", accident_result$nombre, icon = icon("road"),
+      "Accidents en 2017", accident_result$nombre, icon = icon("car-crash"),
       color = "purple"
     )
   })
