@@ -18,7 +18,7 @@ sidebar <- dashboardSidebar(
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
     menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("Maps", icon = icon("globe"), tabName = "maps"),
-    menuItem("Pie", icon = icon("stats-circle",lib ="glyphicon"), tabName = "pie"),
+    menuItem("Pie", icon = icon("chart-pie"), tabName = "pie"), #,lib ="glyphicon"
     menuItem("Chart Line", icon = icon("stats",lib= "glyphicon"), tabName = "others")
     )
 )
@@ -92,6 +92,7 @@ body <- dashboardBody(
     
     tabItem(tabName = "dashboard",
             h2("Informations KPI"),
+            
             fluidRow(
               # A static infoBox
               #   infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
@@ -104,15 +105,18 @@ body <- dashboardBody(
             
             #Interactive gauge chart
             fluidRow (),
+            
             column(3,
                    box(flexdashboard::gaugeOutput("plt1"),
-                       height=50,width=20,title="Accident selon la lumiere",background ="orange")),
+                       height=50,width=20,title="Accident selon la lumiere",background ="teal")),
+          
             column(3,
                    box(flexdashboard::gaugeOutput("plt2"),
-                       height=50,width=20,title="Accident selon la meteo",background ="teal")),
-            column(3,
+                       height=50,width=20, title="Accident selon la meteo",background ="teal")),
+           
+             column(3,
                    box(flexdashboard::gaugeOutput("plt3"),
-                       height=50, width=20,title="Accident selon les vehicules",background ="orange"))
+                       height=50, width=20,class = 'rightAlign', title="Accident selon les vehicules",background ="teal"))
             ),
     
     

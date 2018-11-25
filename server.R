@@ -311,7 +311,7 @@ server<-function(input, output,session) {
   usager_result <- dbGetQuery(db, usager)
   output$infobox2 <- renderInfoBox({
     infoBox(
-      "Usagers", usager_result$nombre, icon = icon("user"),
+      "Usagers", usager_result$nombre, icon = icon("users"),
       color = "yellow"
     )
   })
@@ -335,8 +335,8 @@ server<-function(input, output,session) {
   veh1_result_pourecent <- ceiling(veh1_result$nombre[1] * 100 / sum(veh1_result$nombre))
   output$infobox4 <- renderInfoBox({
     infoBox(
-      "Nombre de morts", paste0(veh1_result$nombre[1], " morts = ",veh1_result_pourecent, " %"),
-      icon = icon("times"),  color = "blue"
+      "nombre de décès", paste0(veh1_result$nombre[1], " Mort = ",veh1_result_pourecent, " %"),
+      icon = icon("frown"),  color = "blue"
     )
   })
   
