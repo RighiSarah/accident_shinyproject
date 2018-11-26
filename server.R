@@ -130,7 +130,10 @@ server<-function(input, output,session) {
                   from usager u
                   group by 1 , 2",input$scratterplot)
     
+    
     df_usager_result <- dbGetQuery(db, df_usager)
+    
+    Encoding(df_usager_result$attribut) <- "UTF-8"
     reg <- lm(annee~nombre_usagers, data=df_usager_result)
     
     plot( x =  df_usager_result$nombre_usagers,
@@ -139,14 +142,16 @@ server<-function(input, output,session) {
          col = myColors()
         
          )
+ 
     
     #legende
+    
     legend("bottomright", legend = unique(df_usager_result[,1]), 
             col = myColors(),
           # title = input$scratterplot,
            pch = 16, bty = "n", pt.cex = 2)
-    
   })
+  
   
   
   
@@ -159,11 +164,13 @@ server<-function(input, output,session) {
                    host = "shinyapp.mysql.database.azure.com", 
                    user = "myadmin@shinyapp", 
                    password = "Shinyapp69")
-    df_usager <- sprintf("select u.%s ,u.annee_naissance as annee, count(usager_id) as nombre_usagers
+    df_usager <- sprintf("select u.%s as attribut ,u.annee_naissance as annee, count(usager_id) as nombre_usagers
                          from usager u
                          group by 1 ,2",input$scratterplot)
     
     df_usager_result <- dbGetQuery(db, df_usager)
+    Encoding(df_usager_result$attribut) <- "UTF-8"
+    
       boxplot(df_usager_result[,'nombre_usagers'] ~ df_usager_result[,1], xlab = input$scratterplot,
                ylab = "nombre d'usagers",
       border = "black", col = myColors()
