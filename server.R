@@ -125,11 +125,12 @@ server<-function(input, output,session) {
                  password = "Shinyapp69")
 
     
-    df_usager <- sprintf("select u.%s , u.annee_naissance as annee , count(usager_id) as nombre_usagers
+    df_usager <- sprintf("select u.%s as attribut , u.annee_naissance as annee , count(usager_id) as nombre_usagers
                   from usager u
                   group by 1 , 2",input$scratterplot)
     
     df_usager_result <- dbGetQuery(db, df_usager)
+    
     
    #input_usager <- df_usager_result[,c('annee','nombre_usagers')]
     reg <- lm(annee~nombre_usagers, data=df_usager_result)
@@ -481,6 +482,7 @@ server<-function(input, output,session) {
      
    output$pie1 <- renderPlot({
      data <- pieInput()
+     Encoding(data$attribut) <- "UTF-8"
      x <-  data$nombre
      labels <-  data$attribut
      piepercent<- round(100*x/sum(x), 1)
@@ -507,8 +509,10 @@ pieInput2 <- reactive({
 
 })
 
+
 output$pie2 <- renderPlot({
   data <- pieInput2()
+  Encoding(data$attribut) <- "UTF-8"
   x <-  data$nombre
   labels <-  data$attribut
   piepercent<- round(100*x/sum(x), 1)
