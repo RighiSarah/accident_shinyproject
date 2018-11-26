@@ -93,7 +93,7 @@ body <- dashboardBody(
            
             column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt3"),align="center",
-                       height=200, width=20, title="Accidents selon les véhicules",background ="purple")
+                       height=200, width=20, title="Accidents selon la catégorie de véhicules",background ="purple")
           ),
           
              fluidRow(column(12,
