@@ -91,7 +91,7 @@ server<-function(input, output,session) {
     head(datasetInput(), n = input$obs)
   })
   output$NbRows <- renderText({ 
-    paste("You have selected to show ", input$obs," lines.")
+    paste("Vous avez choisi de montrer", input$obs," lignes.")
   })
   
   output$summary <- renderPrint({
