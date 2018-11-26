@@ -227,7 +227,7 @@ body <- dashboardBody(
             sidebarLayout(
               sidebarPanel(
                 radioButtons("radio", label = h3("Sélectionnez une période"),
-                             choices = list("MONTH" , "WEEK","QUARTER"), 
+                             choices = list("MONTH" ,"QUARTER"), 
                              selected = "MONTH")
               ),
               mainPanel(

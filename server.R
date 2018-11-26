@@ -27,7 +27,6 @@ killDbConnections <- function () {
     +  dbDisconnect(con)
 
 }
-
 #********************************************************#  
 
 #connection to azure mysql database (cloud)
@@ -131,12 +130,13 @@ server<-function(input, output,session) {
                   group by 1 , 2",input$scratterplot)
     
     df_usager_result <- dbGetQuery(db, df_usager)
+    
    #input_usager <- df_usager_result[,c('annee','nombre_usagers')]
     reg <- lm(annee~nombre_usagers, data=df_usager_result)
     
     plot( x =  df_usager_result$nombre_usagers,
          y= df_usager_result$annee,
-         xlab = "usagers", ylab = "annee de naissance", abline(reg, col="purple"),
+         xlab = "usagers", ylab = "annee de naissance", #abline(reg, col="purple"),
          col = myColors()
          # col= c("red", "blue")
        # col = ifelse(input_usager$attribut == "Homme", "blue", 
@@ -181,7 +181,7 @@ server<-function(input, output,session) {
                    host = "shinyapp.mysql.database.azure.com", 
                    user = "myadmin@shinyapp", 
                    password = "Shinyapp69")
-    df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers
+    df_usager <- sprintf("select u.annee_naissance as annee_naissance, count(usager_id) as nombre_usagers
                          from usager u where u.annee_naissance is not null
                          group by 1 ")
     
@@ -192,7 +192,7 @@ server<-function(input, output,session) {
   output$kmeansPlot <- renderPlot({
     df_usager_result <- clusters()
    clus<- kmeans(df_usager_result[,1:2], input$clusters)
-    plot(df_usager_result[,c('nombre_usagers','annee')],
+    plot(df_usager_result[,c('nombre_usagers','annee_naissance')],
          col = clus$cluster,
          pch = 20, cex = 2)
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
@@ -253,7 +253,7 @@ server<-function(input, output,session) {
                      dbname = "accidents",
                      host = "shinyapp.mysql.database.azure.com", 
                      user = "myadmin@shinyapp", 
-                     password = "Shinyapp69", encoding = "windows-1252")
+                     password = "Shinyapp69", encoding = "UTF-8")
       
       col_names <- sprintf ("show columns from %s", x)
       col_names_result <- dbGetQuery(db, col_names)
@@ -279,8 +279,8 @@ server<-function(input, output,session) {
                    host = "shinyapp.mysql.database.azure.com", 
                    user = "myadmin@shinyapp", 
                    password = "Shinyapp69")
-    query1 <- sprintf ("select %s as attribut, count(distinct num_accident) as nombre FROM
-                       %s x
+    query1 <- sprintf ("select  %s as attribut, count(distinct num_accident) as nombre FROM
+                       %s x 
                        join accident a on a.%s_id = x.%s_id
                        group by 1 order by nombre desc",input$attribute, input$dimension, input$dimension, input$dimension)
     
@@ -290,7 +290,7 @@ server<-function(input, output,session) {
 
   output$view <- renderPlot({
   donnee <- attributeInput()
-  Encoding(donnee$attribut) <- "windows-1252"
+  Encoding(donnee$attribut) <- "UTF-8"
     par(mar=c(12,5,5,5))
     my_bar=barplot(donnee$nombre , border=F , names.arg=donnee$attribut , las=2 , col=c(rgb(0.3,0.1,0.4,0.6) , rgb(0.3,0.5,0.4,0.6) , rgb(0.3,0.9,0.4,0.6) ,  rgb(0.3,0.9,0.4,0.6)) , main="" )
     abline(v=c(4.9 , 9.7) , col="grey")
