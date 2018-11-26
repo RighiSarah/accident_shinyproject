@@ -16,10 +16,9 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Description", tabName = "description", icon = icon("list-alt")),
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-   # menuItem("Barchart", tabName = "chartbar", icon = icon("bar-chart-o")),
     menuItem("Maps", icon = icon("globe"), tabName = "maps"),
-    menuItem("Pie", icon = icon("chart-pie"), tabName = "pie"), #,lib ="glyphicon"
-    menuItem("Chart Line", icon = icon("stats",lib= "glyphicon"), tabName = "others")
+    menuItem("Pie", icon = icon("chart-pie"), tabName = "pie"), 
+    menuItem("Chart Line", tabName = "chartline", icon = icon("stats",lib= "glyphicon"))
     )
 )
 
@@ -32,21 +31,9 @@ body <- dashboardBody(
     tabItem ( tabName = "description",fluidRow (
              # Application title
              titlePanel("Analyse descriptive des données"),
-             
-             # Sidebar with controls 
-            # sidebarLayout(
-             #  sidebarPanel(#width=2,
-             #    h3("Filtering data"),
-              #    numericInput("obs", "Number of observations to view on table:", 10)
-               #            ),
-               
-               # MainPanel divided into many tabPanel
-              # mainPanel(height = 500,width = 500,
                  tabsetPanel(
                   tabPanel("Plot",  br(),
-                          
                            sidebarPanel(
-                             
                               h3("Filtrage des données"),
                               selectInput("scratterplot", "choisir un attribut",
                                           c("sexe", "securite","gravite_accident","categorie_usager"),
@@ -54,7 +41,6 @@ body <- dashboardBody(
                               )
                             ),
                            
-
                             mainPanel(
                            column(width=11,
                               fluidRow(height = 200,
@@ -67,50 +53,35 @@ body <- dashboardBody(
                         
                    tabPanel("Descriptive statistics", h1("Statistique descriptive"),verbatimTextOutput("summary")),
                    tabPanel("Table",
-                            
-                                sidebarPanel(#width=2,
+                            sidebarPanel(
                                  h3("Filtrage des données"),
-                                  numericInput("obs", "Nombre d'observations à afficher sur le tableau:", 10)
-                                          ),
+                                  numericInput("obs", "Nombre d'observations à afficher sur le tableau:", 10)),
                                 mainPanel(
-                            h1("Table"), textOutput("NbRows"), tableOutput("tableView")
-                            )
-                            ),
-                   tabPanel("Clustering", 
-                            sidebarPanel(#width=2,
+                            h1("Table"), textOutput("NbRows"), tableOutput("tableView"))),
+                   
+                  tabPanel("Clustering", 
+                            sidebarPanel(
                               h3("Filtrage des données"),
-                              numericInput("clusters", "Nombre de cluster", 3, min = 1, max = 9)
-                              
-                            ),
+                              numericInput("clusters", "Nombre de cluster", 3, min = 1, max = 9)),
                             mainPanel(
-                                      h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot")
-                                      #h1("Decision tree"), plotOutput("treePlot")
-                                      )
-                                      )
+                                      h1("K-Means"), textOutput("NbClust"), plotOutput("kmeansPlot")))
                            
                  ) 
-              # )
              )),
              
     
     
     #Second tab
-    
     tabItem(tabName = "dashboard",
             h2("Indicateur de performance KPI"),
             
             fluidRow(
-              # A static infoBox
-              #   infoBox("Nombre d'accidents en 2017",  icon = icon("car-crash")),
               # Dynamic infoBoxes
               infoBoxOutput("infobox1", width = 3),
               infoBoxOutput("infobox2", width = 3),
               infoBoxOutput("infobox3", width = 3),
               infoBoxOutput("infobox4", width = 3)
             ),
-            
-            #Interactive gauge chart
-          #fluidRow(column(12,align="center",
             
             column(align="center",width = 4,
                    box(flexdashboard::gaugeOutput("plt1"),
@@ -124,46 +95,28 @@ body <- dashboardBody(
                    box(flexdashboard::gaugeOutput("plt3"),align="center",
                        height=200, width=20, title="Accidents selon les véhicules",background ="purple")
           ),
-   fluidRow(column(12,
-    h3("Histogramme : selon différentes dimensions "),
-    
-    sidebarLayout(
-      sidebarPanel(
-        selectInput("dimension", "Choisir une dimension",
-                    c("caracteristiques", "lieux", "usager", "vehicule","departement"),
-                    selected ="caracteristiques"
-        ),
-        selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
-        actionButton("submit", "Go!")
-      ),
-      mainPanel(
-        
-        plotOutput("view", height = 400)
-      )
-    )))),
+          
+             fluidRow(column(12,
+              h3("Histogramme : selon différentes dimensions "),
+              
+              sidebarLayout(
+                sidebarPanel(
+                  selectInput("dimension", "Choisir une dimension",
+                              c("caracteristiques", "lieux", "usager", "vehicule","departement"),
+                              selected ="caracteristiques"
+                  ),
+                  selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
+                  actionButton("submit", "Go!")
+                ),
+                mainPanel(
+                  
+                  plotOutput("view", height = 400)
+                )
+              )))),
            
 
-    
-    #Third tab
-   #tabItem (tabName = "chartbar",
-     #titlePanel("Create your barchart"),
   
-  #sidebarLayout(
-   #sidebarPanel(
-     # selectInput("dimension", "Choisir une dimension",
-                    #     c("caracteristiques", "lieux", "usager", "vehicule","departement"),
-                 # selected ="caracteristiques"
-                  #),
-      # selectInput("attribute", "Choisir un attribut", c("lumiere"), selected ="lumiere"),
-      # actionButton("submit", "Go!")
-#     ),
-#     mainPanel(
-#       
-#       plotOutput("view", height = 400)
-# )
-# )
-# ),
-    #Fourth tab
+    #Third tab
     tabItem (tabName = "maps",
                   h1("Classement des régions selon le nombre d'accidents "),
                  column(4,
@@ -183,10 +136,8 @@ body <- dashboardBody(
             
     ),
 
-    #fifth tab
+    #fourth tab
     tabItem (tabName = "pie", height = 5000, width= 500,
-             #h2("Analyser les caracteristiques des usagers impliques dans les accidents"),
-             
              box(
                title = "Analyse des caractéristiques des usagers", status = "primary", solidHeader = TRUE,
                collapsible = TRUE,
@@ -204,8 +155,6 @@ body <- dashboardBody(
              
              box(
                title = "Analyse des caractéristiques des accidents", status = "warning", solidHeader = TRUE,
-             #  "Box content here", br(), "More box content"
-           #  title = "Analyse des caracteristiques des accidents", status = "primary", solidHeader = TRUE,
              collapsible = TRUE,
              selectInput("caracteristique", "Choisissez un axe d'observation",
                          c("lumiere", "atmosphere", "surface", "categorie"),
@@ -213,17 +162,13 @@ body <- dashboardBody(
              ),
 
              plotOutput("pie2", height = 350)
-               
-               
+             
              )
              
-             
     ),
-
-    tabItem(tabName = "others",
-            # h2("Analyse des accidents")
-            
-          
+    
+    #Fifth tab
+    tabItem(tabName = "chartline",
             sidebarLayout(
               sidebarPanel(
                 radioButtons("radio", label = h3("Sélectionnez une période"),
@@ -236,7 +181,6 @@ body <- dashboardBody(
               )
             )
     )
-
     
   )
 )

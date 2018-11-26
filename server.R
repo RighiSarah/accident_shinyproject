@@ -6,13 +6,11 @@ library(leaflet)#cartographie en ligne
 library(ggplot2)
 library(scales)
 library(lubridate)#Manipulation de dates
-#library(plotly)
 library(Hmisc)
 library(rpart)
 library(party)
 library(fpc)
 library(regplot)
-#library(pastecs)
 
 
 # Define colors
@@ -43,6 +41,8 @@ connection_sql <- function(){
   #disconnect when exiting the app
   on.exit(dbDisconnect(db), add = TRUE)
 }
+
+
 
 
 # server code to start the shiny app
@@ -85,7 +85,7 @@ server<-function(input, output,session) {
   })
   
   
-  # Show the first n observations
+  # Show the first n observations (Statistique descriptive)
   output$tableView <- renderTable({
     
     head(datasetInput(), n = input$obs)
@@ -115,6 +115,7 @@ server<-function(input, output,session) {
   })
   
   
+  
   #ScatterPlot
   output$simplePlot <- renderPlot({
     killDbConnections()
@@ -130,26 +131,25 @@ server<-function(input, output,session) {
                   group by 1 , 2",input$scratterplot)
     
     df_usager_result <- dbGetQuery(db, df_usager)
-    
-    
-   #input_usager <- df_usager_result[,c('annee','nombre_usagers')]
     reg <- lm(annee~nombre_usagers, data=df_usager_result)
     
     plot( x =  df_usager_result$nombre_usagers,
          y= df_usager_result$annee,
          xlab = "usagers", ylab = "annee de naissance", #abline(reg, col="purple"),
          col = myColors()
-         # col= c("red", "blue")
-       # col = ifelse(input_usager$attribut == "Homme", "blue", 
-                  #  "red" )
+        
          )
     
+    #legende
     legend("bottomright", legend = unique(df_usager_result[,1]), 
             col = myColors(),
           # title = input$scratterplot,
            pch = 16, bty = "n", pt.cex = 2)
     
   })
+  
+  
+  
   
   # Show boxplot
   output$boxPlot <- renderPlot({
@@ -170,8 +170,11 @@ server<-function(input, output,session) {
       )
     
   })
+  
+  
+  
   # K-Means Plot
-  output$NbClust <- renderText({ 
+    output$NbClust <- renderText({ 
     paste("K-means clustering performed with ", input$clusters," clusters.")
   })
   
@@ -199,29 +202,9 @@ server<-function(input, output,session) {
     points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
   })
   
-  # Decision Tree
- # output$treePlot <- renderPlot({
-   # killDbConnections()
-   # db = dbConnect(MySQL(),
-                  # dbname = "accidents",
-                  # host = "shinyapp.mysql.database.azure.com", 
-                  # user = "myadmin@shinyapp", 
-                  # password = "Shinyapp69")
-   # df_usager <- sprintf("select u.annee_naissance as annee, count(usager_id) as nombre_usagers , sexe
-                        # from usager u
-                        # group by 1 ,3")
-    
-   # df_usager_result <- dbGetQuery(db, df_usager)
-    
- #   df_usager_result$annee <- as.numeric(factor(df_usager_result$annee))
- #   df_usager_result$nombre_usagers <- as.numeric(factor(df_usager_result$nombre_usagers))
-    
- #   ctree <- ctree(sexe ~ nombre_usagers, data = df_usager_result)
- #   plot(ctree, type="simple")
-  #})
   
   
-  
+  #Onglet Map
   # query to import dataframe for the map
  query <- paste0("SELECT d.nom_departement,r.nom_region,latitude, longitude, count(distinct num_accident) as nombre
                 FROM departement d
@@ -233,6 +216,7 @@ server<-function(input, output,session) {
 
   
   couleurs <- colorNumeric("RdYlBu", dept$nombre, n = 10)
+  
   # reactive function that creates the map using leaflet library
   output$mymap <- renderLeaflet({
     yourMap <- leaflet(dept) %>% addTiles() %>%
@@ -271,7 +255,7 @@ server<-function(input, output,session) {
   }
   
 
-  
+  #Onglet dashboard Histogramme
   attributeInput <-eventReactive(input$submit,{
     killDbConnections()
     
@@ -296,11 +280,10 @@ server<-function(input, output,session) {
     my_bar=barplot(donnee$nombre , border=F , names.arg=donnee$attribut , las=2 , col=c(rgb(0.3,0.1,0.4,0.6) , rgb(0.3,0.5,0.4,0.6) , rgb(0.3,0.9,0.4,0.6) ,  rgb(0.3,0.9,0.4,0.6)) , main="" )
     abline(v=c(4.9 , 9.7) , col="grey")
     
-    # Add the text 
-    #text(my_bar, donnee$nombre+0.4 ,cex=1) #, paste("n = ",donnee$nombre,sep="") ,) 
-    
+ 
   })
   
+  #Onglet Dashboard : Infobox1
   accident <- sprintf("select  count(distinct num_accident) as nombre FROM accident ")
   accident_result <- dbGetQuery(db, accident)
   output$infobox1 <- renderInfoBox({
@@ -310,6 +293,7 @@ server<-function(input, output,session) {
     )
   })
   
+  #Onglet Dashboard : Infobox2
   usager <- sprintf("select  count(distinct usager_id) as nombre FROM accident ")
   usager_result <- dbGetQuery(db, usager)
   output$infobox2 <- renderInfoBox({
@@ -319,7 +303,7 @@ server<-function(input, output,session) {
     )
   })
   
-  
+  #Onglet Dashboard : Infobox3
   veh <- sprintf("select  count(distinct vehicule_id) as nombre FROM accident ")
   veh_result <- dbGetQuery(db, veh)
   output$infobox3 <- renderInfoBox({
@@ -329,35 +313,22 @@ server<-function(input, output,session) {
     )
   })
   
-  veh1 <- ("select gravite_accident , count(distinct num_accident) as nombre FROM
+  #Onglet Dashboard : Infobox4
+  deces <- ("select gravite_accident , count(distinct num_accident) as nombre FROM
                    accident x
           join usager a on a.usager_id = x.usager_id
           group by 1 order by nombre asc
           ")
-  veh1_result <- dbGetQuery(db, veh1)
-  veh1_result_pourecent <- ceiling(veh1_result$nombre[1] * 100 / sum(veh1_result$nombre))
+  deces_result <- dbGetQuery(db, deces)
+  deces_result_pourecent <- ceiling(deces_result$nombre[1] * 100 / sum(deces_result$nombre))
   output$infobox4 <- renderInfoBox({
     infoBox(
-      "nombre de décès", paste0(veh1_result$nombre[1]),# " Mort = ",veh1_result_pourecent, " %" ," " ),
-      icon = icon("user"),  color = "blue" #frown
+      "nombre de décès", paste0(deces_result$nombre[1]),
+      icon = icon("user"),  color = "blue" 
     )
   })
   
-  
-  output$progressBox2 <- renderInfoBox({
-    infoBox(
-      "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
-      color = "purple", fill = TRUE
-    )
-  })
-  
-  output$approvalBox2 <- renderInfoBox({
-    infoBox(
-      "Approval", "80%", icon = icon("thumbs-up", lib = "glyphicon"),
-      color = "yellow", fill = TRUE
-    )
-  })
-  
+  #Onglet Dashborad : Gauge chart1
   lumiere <- sprintf("select lumiere , count(distinct num_accident) as nombre FROM
                    caracteristiques x
                    join accident a on a.caracteristiques_id = x.caracteristiques_id
@@ -372,6 +343,7 @@ server<-function(input, output,session) {
     
      })
    
+   #Onglet Dashborad : Gauge chart2
    atmosphere <- ("select atmosphere , count(distinct num_accident) as nombre FROM
                   caracteristiques x
                   join accident a on a.caracteristiques_id = x.caracteristiques_id
@@ -384,6 +356,7 @@ server<-function(input, output,session) {
      ))
    })
    
+   #Onglet Dashborad : Gauge chart1
    vehicule <- ("select categorie_vehicule as categorie , count(distinct num_accident) as nombre FROM
                   vehicule x
                   join accident a on a.vehicule_id = x.vehicule_id
@@ -396,6 +369,8 @@ server<-function(input, output,session) {
      ))
    })
    
+   
+   #Onglet Map : Gauge chart1/2/3
    region <- ("select r.nom_region as region , count(distinct num_accident) as nombre FROM
                   accident a
                   join departement d on a.departement_id = d.departement_id
@@ -426,6 +401,7 @@ server<-function(input, output,session) {
    })
 
    
+   #Onglet chartline : Graphique evolution temporelle
    dategraphInput <- reactive({
      killDbConnections()
      db = dbConnect(MySQL(),
@@ -446,7 +422,6 @@ server<-function(input, output,session) {
 
    })
 
-   
    output$dates <- renderPlot({
      date_result <- dategraphInput()
      if (input$radio =="MONTH"){ date_result$type_date <- month.abb[date_result$type_date] }
@@ -455,6 +430,8 @@ server<-function(input, output,session) {
      
    })
    
+   
+   #Onglet Pie : Pie1
    pieInput <- eventReactive(input$submitPie,{
      killDbConnections()
      db = dbConnect(MySQL(),
@@ -492,33 +469,35 @@ server<-function(input, output,session) {
             fill = rainbow(length(x)))
    })
 
-pieInput2 <- reactive({
-  killDbConnections()
-  db = dbConnect(MySQL(),
-                 dbname = "accidents",
-                 host = "shinyapp.mysql.database.azure.com", 
-                 user = "myadmin@shinyapp", 
-                 password = "Shinyapp69")
-  mesure1 <- sprintf ("select %s as attribut, count(distinct x.num_accident) as nombre FROM
-                      accident x
-                      join caracteristiques c on c.caracteristiques_id= x.caracteristiques_id
-                      join lieux l on l.lieux_id = x.lieux_id
-                      group by 1 ",input$caracteristique)
-  
-  mesure_result1 <- dbGetQuery(db, mesure1)
+   
+   #Onglet Pie : Pie2
+    pieInput2 <- reactive({
+      killDbConnections()
+      db = dbConnect(MySQL(),
+                     dbname = "accidents",
+                     host = "shinyapp.mysql.database.azure.com", 
+                     user = "myadmin@shinyapp", 
+                     password = "Shinyapp69")
+      mesure1 <- sprintf ("select %s as attribut, count(distinct x.num_accident) as nombre FROM
+                          accident x
+                          join caracteristiques c on c.caracteristiques_id= x.caracteristiques_id
+                          join lieux l on l.lieux_id = x.lieux_id
+                          group by 1 ",input$caracteristique)
+      
+      mesure_result1 <- dbGetQuery(db, mesure1)
 
 })
 
 
-output$pie2 <- renderPlot({
-  data <- pieInput2()
-  Encoding(data$attribut) <- "UTF-8"
-  x <-  data$nombre
-  labels <-  data$attribut
-  piepercent<- round(100*x/sum(x), 1)
-  pie(x, labels = paste0(piepercent," %"), main = paste0("Analyse du nombre d'accidents selons l'axe ",input$caracteristique)
-      ,radius= 1 ,col = rainbow(length(x)))
-  legend("bottomleft",data$attribut, cex = 0.9,
-         fill = rainbow(length(x)))
-})
+      output$pie2 <- renderPlot({
+        data <- pieInput2()
+        Encoding(data$attribut) <- "UTF-8"
+        x <-  data$nombre
+        labels <-  data$attribut
+        piepercent<- round(100*x/sum(x), 1)
+        pie(x, labels = paste0(piepercent," %"), main = paste0("Analyse du nombre d'accidents selons l'axe ",input$caracteristique)
+            ,radius= 1 ,col = rainbow(length(x)))
+        legend("bottomleft",data$attribut, cex = 0.9,
+               fill = rainbow(length(x)))
+      })
 }
